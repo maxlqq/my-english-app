@@ -18,6 +18,8 @@
             width: 100%; 
             height: 100vh;
             position: relative;
+            /* 针对 iOS 优化：允许文本选择但禁止长按弹出系统菜单干扰 */
+            -webkit-touch-callout: none;
         }
 
         .header { 
@@ -90,6 +92,8 @@
         
         .word-input { 
             border: none; border-bottom: 4px solid #E2E8F0; font-size: 36px; width: 85%; text-align: center; outline: none; margin: 15px 0; color: var(--main); font-weight: bold; background: transparent; transition: 0.2s; border-radius: 0; -webkit-appearance: none;
+            /* 针对 iOS 优化：确保可以选中 */
+            -webkit-user-select: text !important;
         }
         .word-input.correct { color: var(--success); border-bottom-color: var(--success); }
         .word-input.error { color: var(--wrong); border-bottom-color: var(--wrong); animation: shake 0.4s; }
@@ -241,13 +245,14 @@ let wrongQueue = [];
 let audioCache = {};
 let sessionLog = { total: 0, firstPass: 0, errors: {}, startTime: null };
 
-// 核心函数：用于确保软键盘弹出
+// --- 针对 iOS 优化：强制唤起键盘函数 ---
 function focusAndPopupKeyboard() {
     const input = document.getElementById('main-input');
-    if (input && !input.disabled) {
+    if (input) {
+        input.disabled = false; // 确保非禁用状态
         input.focus();
-        // 某些安卓环境需要 click 触发才能弹出键盘
-        input.click();
+        // 兼容 iPad，将光标移至末尾
+        input.setSelectionRange(input.value.length, input.value.length);
     }
 }
 
@@ -418,8 +423,14 @@ function showSummaryReport() {
         </div>`;
 }
 
+// --- 针对 iOS 优化：handlePlayClick 是用户点击的第一步 ---
 function handlePlayClick() {
     const input = document.getElementById('main-input');
+    
+    // 关键：在点击的一瞬间立即同步获取焦点。这是 iOS 弹出键盘的唯一合法途径。
+    input.disabled = false;
+    input.focus(); 
+    
     if(!input.disabled) { isReplayed = true; }
     startDictation();
 }
@@ -428,14 +439,19 @@ function startDictation() {
     if(currentSession.idx >= currentSession.tasks.length) return;
     lockBox(); 
     const currentWord = currentSession.tasks[currentSession.idx].en;
+    
     speakWord(currentWord, () => {
+        // 音频播放完毕后的异步回调
         const input = document.getElementById('main-input');
         input.disabled = false;
         document.getElementById('cn-hint').innerText = currentSession.tasks[currentSession.idx].cn;
         document.getElementById('encourage-msg').innerText = "Spell it now";
         
-        // 关键修改：通过延时确保在移动端系统音频上下文切换后聚焦
-        setTimeout(focusAndPopupKeyboard, 50);
+        // 再次强制聚焦。因为刚才 handlePlayClick 已经同步获取过焦点，
+        // 这里的异步 focus() 在 iOS 上成功率会显著提高。
+        setTimeout(() => {
+            input.focus();
+        }, 50);
     });
 }
 
@@ -459,7 +475,13 @@ function handleInput(e) {
         let pt = appData.curve.find(p => p.date === today); 
         if(pt) pt.count++; else appData.curve.push({date: today, count: 1});
         save();
-        setTimeout(() => { renderQuiz(); renderTodayList(); startDictation(); }, 800);
+        
+        // 自动切下一题
+        setTimeout(() => { 
+            renderQuiz(); 
+            renderTodayList(); 
+            startDictation(); 
+        }, 800);
         return;
     }
     if (val.length >= target.length && val !== target) {
@@ -490,26 +512,31 @@ function speakWord(word, onEnd) {
 
 function runCloudTTS(word, onEnd, isAuto) {
     const audio = audioCache[word] || new Audio(`https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=2`);
+    
+    audio.onended = () => {
+        if(document.getElementById('playBtn')) document.getElementById('playBtn').classList.remove('playing');
+        if (onEnd) onEnd();
+    };
+    
     audio.onerror = () => isAuto ? runSystemTTS(word, onEnd) : (onEnd && onEnd());
-    audio.play().then(() => {
-        audio.onended = () => {
-            if(document.getElementById('playBtn')) document.getElementById('playBtn').classList.remove('playing');
-            if (onEnd) onEnd();
-            // 播报完后再次强制聚焦
-            setTimeout(focusAndPopupKeyboard, 50);
-        };
-    }).catch(() => isAuto ? runSystemTTS(word, onEnd) : (onEnd && onEnd()));
+    
+    const promise = audio.play();
+    if (promise !== undefined) {
+        promise.catch(() => {
+            if(isAuto) runSystemTTS(word, onEnd);
+            else onEnd && onEnd();
+        });
+    }
 }
 
 function runSystemTTS(word, onEnd) {
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(word === "I" ? "I " : word);
-    utter.lang = 'en-US'; utter.rate = 0.9;
+    utter.lang = 'en-US'; 
+    utter.rate = 0.85; 
     utter.onend = () => {
         if(document.getElementById('playBtn')) document.getElementById('playBtn').classList.remove('playing');
         if (onEnd) onEnd();
-        // 播报完后再次强制聚焦
-        setTimeout(focusAndPopupKeyboard, 50);
     };
     window.speechSynthesis.speak(utter);
 }
