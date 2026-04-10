@@ -10,24 +10,22 @@
             --safe-top: env(safe-area-inset-top);
         }
         
-        /* 优化 body，防止键盘顶起时整体滚动 */
         body { 
             font-family: 'PingFang SC', system-ui; 
             background: var(--bg); 
             margin: 0; 
-            overflow: hidden; /* 关键：禁止 body 滚动 */
+            overflow: hidden; 
             width: 100%; 
             height: 100vh;
             position: relative;
-            -webkit-user-select: auto; /* 允许交互以确保键盘能弹出 */
+            -webkit-user-select: auto;
         }
 
-        /* 顶部导航固定 */
         .header { 
             background: var(--main); color: white; 
             padding: calc(var(--safe-top) + 12px) 20px 12px; 
             display: flex; justify-content: space-between; align-items: center; 
-            position: fixed; /* 固定在顶部 */
+            position: fixed; 
             top: 0; left: 0; right: 0;
             z-index: 2000; 
         }
@@ -36,43 +34,39 @@
         .nav-tab { padding: 6px 15px; border-radius: 18px; font-size: 13px; cursor: pointer; transition: 0.3s; }
         .nav-tab.active { background: white; color: var(--main); font-weight: bold; }
 
-        /* 核心内容容器：自主滚动，防止界面随键盘移动 */
         .container { 
             max-width: 600px; 
             margin: 0 auto; 
             position: absolute;
-            top: calc(54px + var(--safe-top)); /* 避开 header */
+            top: calc(54px + var(--safe-top)); 
             bottom: 0; left: 0; right: 0;
             padding: 10px 15px;
-            overflow-y: auto; /* 允许内部滚动 */
+            overflow-y: auto; 
             -webkit-overflow-scrolling: touch;
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
         }
 
-        /* 任务面板：使用 order 实现上下调换 */
         #view-plan { 
             display: flex; 
             flex-direction: column; 
             gap: 15px; 
         }
 
-        /* 测验练习区 (原代码块) - 设置为 order: 1 (在上) */
         .quiz-view { 
             background: var(--card); border-radius: 24px; padding: 25px 20px; 
             text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
             min-height: 260px; display: flex; flex-direction: column; 
             justify-content: center; align-items: center; 
-            order: 1; /* 视觉顺序调至上方 */
+            order: 1; 
         }
 
-        /* 设置与进度区 (原代码块) - 设置为 order: 2 (在下) */
         .plan-essentials { 
             display: flex; 
             flex-direction: column; 
             gap: 12px; 
-            order: 2; /* 视觉顺序调至下方 */
+            order: 2; 
             padding-bottom: 40px; 
         }
 
@@ -226,7 +220,6 @@
 </div>
 
 <script>
-// --- 原有逻辑完全保留 ---
 const PRAISE_LIST = ["Amazing!", "Brilliant!", "Excellent!", "Perfect!", "Well done!", "Spot on!"];
 const DEFAULT_DICT = {
     "3-1": {
@@ -248,6 +241,16 @@ let isReplayed = false;
 let wrongQueue = [];
 let audioCache = {};
 let sessionLog = { total: 0, firstPass: 0, errors: {}, startTime: null };
+
+// 辅助函数：确保键盘弹出
+function focusAndOpenKeyboard() {
+    const input = document.getElementById('main-input');
+    if(input && !input.disabled) {
+        input.focus();
+        // 某些浏览器需要 click 事件触发才能弹出键盘
+        input.click();
+    }
+}
 
 function initApp() {
     const today = new Date().toLocaleDateString();
@@ -380,6 +383,8 @@ function renderQuiz() {
         document.getElementById('hint-box').innerHTML = ""; document.getElementById('feedback').innerText = "";
         document.getElementById('progress-text').innerText = `${currentSession.idx} / ${currentSession.tasks.length}`;
         isReplayed = false; 
+        localWrongCount = 0;
+        hasShownHint = false;
     }
 }
 
@@ -429,9 +434,11 @@ function startDictation() {
     speakWord(currentWord, () => {
         const input = document.getElementById('main-input');
         input.disabled = false;
-        setTimeout(() => { input.focus(); }, 100);
         document.getElementById('cn-hint').innerText = currentSession.tasks[currentSession.idx].cn;
         document.getElementById('encourage-msg').innerText = "Spell it now";
+        
+        // 播报结束后自动聚焦并弹出键盘
+        setTimeout(focusAndOpenKeyboard, 100);
     });
 }
 
@@ -491,9 +498,8 @@ function runCloudTTS(word, onEnd, isAuto) {
         audio.onended = () => {
             if(document.getElementById('playBtn')) document.getElementById('playBtn').classList.remove('playing');
             if (onEnd) onEnd();
-            // 播报结束后自动聚焦弹出键盘
-            const input = document.getElementById('main-input');
-            if(!input.disabled) input.focus();
+            // 确保播放完后焦点和键盘
+            setTimeout(focusAndOpenKeyboard, 50);
         };
     }).catch(() => isAuto ? runSystemTTS(word, onEnd) : (onEnd && onEnd()));
 }
@@ -505,9 +511,8 @@ function runSystemTTS(word, onEnd) {
     utter.onend = () => {
         if(document.getElementById('playBtn')) document.getElementById('playBtn').classList.remove('playing');
         if (onEnd) onEnd();
-        // 播报结束后自动聚焦弹出键盘
-        const input = document.getElementById('main-input');
-        if(!input.disabled) input.focus();
+        // 确保播放完后焦点和键盘
+        setTimeout(focusAndOpenKeyboard, 50);
     };
     window.speechSynthesis.speak(utter);
 }
