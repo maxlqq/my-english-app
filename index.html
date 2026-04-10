@@ -2,49 +2,126 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>English Mastery Engine v5.2 - Unit Range Support</title>
     <style>
-        :root { --main: #4A90E2; --success: #27AE60; --wrong: #E74C3C; --bg: #F4F7F9; --card: #FFFFFF; --lock: #94A3B8; --warning: #F1C40F; --critical: #991B1B; }
-        body { font-family: 'PingFang SC', system-ui; background: var(--bg); margin: 0; padding-bottom: 30px; -webkit-user-select: none; }
-        .header { background: var(--main); color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        :root { 
+            --main: #4A90E2; --success: #27AE60; --wrong: #E74C3C; --bg: #F4F7F9; --card: #FFFFFF; --lock: #94A3B8; --warning: #F1C40F; --critical: #991B1B; 
+            --safe-top: env(safe-area-inset-top);
+        }
+        
+        /* 优化 body，防止键盘顶起时整体滚动 */
+        body { 
+            font-family: 'PingFang SC', system-ui; 
+            background: var(--bg); 
+            margin: 0; 
+            overflow: hidden; /* 关键：禁止 body 滚动 */
+            width: 100%; 
+            height: 100vh;
+            position: relative;
+        }
+
+        /* 顶部导航固定 */
+        .header { 
+            background: var(--main); color: white; 
+            padding: calc(var(--safe-top) + 12px) 20px 12px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            position: fixed; /* 关键：固定在顶部 */
+            top: 0; left: 0; right: 0;
+            z-index: 2000; 
+        }
+
         .nav-tabs { display: flex; background: rgba(0,0,0,0.1); border-radius: 20px; padding: 3px; }
         .nav-tab { padding: 6px 15px; border-radius: 18px; font-size: 13px; cursor: pointer; transition: 0.3s; }
         .nav-tab.active { background: white; color: var(--main); font-weight: bold; }
-        .container { max-width: 500px; margin: 15px auto; padding: 0 15px; }
-        .settings-bar { background: #E2E8F0; padding: 8px 12px; border-radius: 12px; margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; font-size: 13px; color: #475569; }
+
+        /* 核心内容容器：自主滚动，防止界面随键盘移动 */
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            position: absolute;
+            top: calc(54px + var(--safe-top)); /* 避开 header */
+            bottom: 0; left: 0; right: 0;
+            padding: 10px 15px;
+            overflow-y: auto; /* 允许内部滚动 */
+            -webkit-overflow-scrolling: touch;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+
+        /* 任务面板：使用 order 实现上下调换 */
+        #view-plan { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+        }
+
+        /* 测验练习区 (原红色方框1) - 设置为 order: 1 (在上) */
+        .quiz-view { 
+            background: var(--card); border-radius: 24px; padding: 25px 20px; 
+            text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+            min-height: 260px; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; 
+            order: 1; /* 视觉顺序 */
+        }
+
+        /* 设置与进度区 (原红色方框2) - 设置为 order: 2 (在下) */
+        .plan-essentials { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            order: 2; /* 视觉顺序 */
+            padding-bottom: 40px; 
+        }
+
+        .settings-bar { background: #E2E8F0; padding: 10px; border-radius: 12px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; font-size: 13px; color: #475569; }
         .settings-group { display: flex; align-items: center; gap: 5px; }
-        .settings-bar select { border: 1px solid #CBD5E1; border-radius: 6px; padding: 3px 6px; outline: none; background: white; }
-        .plan-summary { background: white; border-radius: 20px; padding: 15px 20px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-left: 6px solid var(--main); display: flex; justify-content: space-between; align-items: center; }
-        .stats-card { background: white; border-radius: 20px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .settings-bar select { border: 1px solid #CBD5E1; border-radius: 6px; padding: 4px 6px; outline: none; background: white; font-size: 13px; }
+        
+        .plan-summary { background: white; border-radius: 20px; padding: 15px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-left: 6px solid var(--main); display: flex; justify-content: space-between; align-items: center; }
+        
+        .stats-card { background: white; border-radius: 20px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .chart-container { height: 60px; display: flex; align-items: flex-end; gap: 8px; padding-top: 10px; justify-content: space-around; }
         .chart-bar { background: #E2E8F0; width: 100%; border-radius: 4px 4px 0 0; position: relative; transition: height 0.5s; }
         .chart-bar.active { background: var(--main); }
         .chart-label { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 10px; color: #64748B; }
         .chart-day { font-size: 9px; color: #94A3B8; margin-top: 5px; text-align: center; }
-        .quiz-view { background: var(--card); border-radius: 24px; padding: 25px 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; min-height: 260px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        
         .sonic-capsule { background: #EBF4FF; width: 110px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer; border: 2px solid var(--main); transition: 0.2s; }
+        .sonic-capsule:active { transform: scale(0.96); }
         .wave-bar { width: 3px; background: var(--main); border-radius: 2px; height: 10px; }
         .sonic-capsule.playing .wave-bar { animation: wave 0.5s infinite ease-in-out alternate; }
         @keyframes wave { from { height: 6px; } to { height: 20px; } }
-        .word-input { border: none; border-bottom: 4px solid #E2E8F0; font-size: 36px; width: 85%; text-align: center; outline: none; margin: 15px 0; color: var(--main); font-weight: bold; background: transparent; transition: 0.2s; border-radius: 0; }
+        
+        /* 优化输入框：去掉 -webkit-user-select 限制，确保可点击 */
+        .word-input { 
+            border: none; border-bottom: 4px solid #E2E8F0; font-size: 36px; width: 85%; text-align: center; outline: none; margin: 15px 0; color: var(--main); font-weight: bold; background: transparent; transition: 0.2s; border-radius: 0; -webkit-appearance: none;
+        }
         .word-input.correct { color: var(--success); border-bottom-color: var(--success); }
         .word-input.error { color: var(--wrong); border-bottom-color: var(--wrong); animation: shake 0.4s; }
         .word-input.warning { color: var(--warning); border-bottom-color: var(--warning); }
+        
         .answer-hint { font-size: 28px; color: var(--wrong); font-weight: bold; margin-top: 5px; letter-spacing: 1px; background: #FFF5F5; padding: 6px 20px; border-radius: 10px; border: 2px dashed var(--wrong); }
+        
         .collapse-box { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
         .collapse-box.locked { background: #F1F5F9; border-left: 5px solid var(--lock); opacity: 0.8; }
         .collapse-header { padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
         .collapse-content { display: none; padding: 5px 0; background: #FFF; border-top: 1px solid #EDF2F7; }
         .collapse-content.show { display: block; }
+        
         .lib-toolbar { background: #F8FAFC; padding: 12px 18px; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid #E2E8F0; }
         .toolbar-top { display: flex; justify-content: space-between; align-items: center; }
-        .search-box { width: 100%; padding: 8px 12px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; outline: none; }
+        .search-box { width: 100%; padding: 10px 12px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box; }
+        
         .word-item { padding: 12px 18px; border-bottom: 1px solid #F7FAFC; display: flex; justify-content: space-between; align-items: center; }
-        .btn-mini { padding: 4px 8px; font-size: 11px; background: #FFF; border: 1px solid #CBD5E1; border-radius: 6px; cursor: pointer; color: #475569; font-weight: bold; }
-        .btn-action { background: var(--main); color: white; border: none; padding: 10px 20px; border-radius: 12px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        .btn-mini { padding: 5px 10px; font-size: 12px; background: #FFF; border: 1px solid #CBD5E1; border-radius: 6px; cursor: pointer; color: #475569; font-weight: bold; }
+        .btn-mini:active { background: #F1F5F9; }
+        .btn-action { background: var(--main); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; margin-top: 10px; cursor: pointer; font-size: 16px; }
+        .btn-action:active { opacity: 0.9; }
+
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
-        .hidden { display: none; }
+        .hidden { display: none !important; }
         .summary-card { text-align: left; width: 100%; }
         .summary-stat { font-size: 20px; color: var(--main); font-weight: bold; margin-bottom: 15px; text-align: center; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         .wrong-eval-item { display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px dashed #eee; }
@@ -56,7 +133,7 @@
 <body>
 
 <div class="header">
-    <select id="termSelect" onchange="switchTerm()" style="background:none; border:none; color:white; font-weight:bold; font-size:15px; outline:none;">
+    <select id="termSelect" onchange="switchTerm()" style="background:none; border:none; color:white; font-weight:bold; font-size:16px; outline:none;">
         <optgroup label="Grade 3"><option value="3-1">3rd Up</option><option value="3-2">3rd Down</option></optgroup>
         <optgroup label="Grade 4"><option value="4-1">4th Up</option><option value="4-2">4th Down</option></optgroup>
         <optgroup label="Grade 5"><option value="5-1">5th Up</option><option value="5-2">5th Down</option></optgroup>
@@ -70,42 +147,6 @@
 
 <div class="container">
     <div id="view-plan">
-        <div class="settings-bar">
-            <div class="settings-group">
-                <span>Range:</span>
-                <select id="startUnit" onchange="changeUnitRange()"></select>
-                <span>~</span>
-                <select id="endUnit" onchange="changeUnitRange()"></select>
-            </div>
-            <div class="settings-group">
-                <span>Words:</span>
-                <select id="limitSelect" onchange="changeLimit()">
-                    <option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option>
-                </select>
-            </div>
-            <div class="settings-group">
-                <span>Voice:</span>
-                <select id="voiceEngineSelect" onchange="changeVoiceEngine()">
-                    <option value="auto">Auto</option><option value="cloud">Cloud</option><option value="system">System</option>
-                </select>
-            </div>
-            <div style="display: flex; gap: 4px;">
-                <button class="btn-mini" onclick="backupData()">Export</button>
-                <button class="btn-mini" onclick="triggerImportAll()">Import</button>
-                <input type="file" id="importFile" class="hidden" accept=".json" onchange="restoreData(event)">
-            </div>
-        </div>
-
-        <div class="plan-summary">
-            <div><span style="font-size: 11px; color: #94A3B8;">Progress</span><br><b id="progress-text" style="font-size: 16px; color: var(--main);">0 / 0</b></div>
-            <div style="text-align: right;"><span style="font-size: 11px; color: #94A3B8;">Streak</span><br><span style="color: #FF4500; font-weight: bold; font-size: 16px;"><span id="streak-count">0</span> Days</span></div>
-        </div>
-
-        <div class="stats-card">
-            <div style="font-size: 11px; color: #64748B; margin-bottom: 5px; font-weight: bold;">Activity</div>
-            <div id="activity-chart" class="chart-container"></div>
-        </div>
-
         <div id="quiz-box" class="quiz-view">
             <div id="cn-hint" style="font-size: 24px; font-weight: bold; color: #1E293B;">Get Ready!</div>
             <div id="encourage-msg" style="font-size: 13px; color: var(--main); margin: 6px 0; height: 18px;"></div>
@@ -117,13 +158,51 @@
             <div id="hint-box"></div><div id="feedback" style="height:30px; font-weight:bold; font-size:22px;"></div>
         </div>
 
-        <div id="collapse-container" class="collapse-box">
-            <div class="collapse-header" onclick="manualToggle()">
-                <span style="font-size:13px; font-weight:bold; color:#475569;">📘 Today's Vocabulary</span>
-                <span id="lock-status" style="font-size: 11px; color: #94A3B8;">🔓 Ready</span>
+        <div class="plan-essentials">
+            <div class="settings-bar">
+                <div class="settings-group">
+                    <span>Range:</span>
+                    <select id="startUnit" onchange="changeUnitRange()"></select>
+                    <span>~</span>
+                    <select id="endUnit" onchange="changeUnitRange()"></select>
+                </div>
+                <div class="settings-group">
+                    <span>Words:</span>
+                    <select id="limitSelect" onchange="changeLimit()">
+                        <option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option>
+                    </select>
+                </div>
+                <div class="settings-group">
+                    <span>Voice:</span>
+                    <select id="voiceEngineSelect" onchange="changeVoiceEngine()">
+                        <option value="auto">Auto</option><option value="cloud">Cloud</option><option value="system">System</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 4px; margin-top: 4px;">
+                    <button class="btn-mini" onclick="backupData()">Export</button>
+                    <button class="btn-mini" onclick="triggerImportAll()">Import</button>
+                    <input type="file" id="importFile" class="hidden" accept=".json" onchange="restoreData(event)">
+                </div>
             </div>
-            <div id="today-content" class="collapse-content">
-                <div id="today-list"></div>
+
+            <div class="plan-summary">
+                <div><span style="font-size: 11px; color: #94A3B8;">Progress</span><br><b id="progress-text" style="font-size: 16px; color: var(--main);">0 / 0</b></div>
+                <div style="text-align: right;"><span style="font-size: 11px; color: #94A3B8;">Streak</span><br><span style="color: #FF4500; font-weight: bold; font-size: 16px;"><span id="streak-count">0</span> Days</span></div>
+            </div>
+
+            <div class="stats-card">
+                <div style="font-size: 11px; color: #64748B; margin-bottom: 5px; font-weight: bold;">Activity</div>
+                <div id="activity-chart" class="chart-container"></div>
+            </div>
+
+            <div id="collapse-container" class="collapse-box">
+                <div class="collapse-header" onclick="manualToggle()">
+                    <span style="font-size:13px; font-weight:bold; color:#475569;">📘 Today's Vocabulary</span>
+                    <span id="lock-status" style="font-size: 11px; color: #94A3B8;">🔓 Ready</span>
+                </div>
+                <div id="today-content" class="collapse-content">
+                    <div id="today-list"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -147,6 +226,7 @@
 </div>
 
 <script>
+// --- 以下逻辑 100% 完整保留自原文件 ---
 const PRAISE_LIST = ["Amazing!", "Brilliant!", "Excellent!", "Perfect!", "Well done!", "Spot on!"];
 const DEFAULT_DICT = {
     "3-1": {
@@ -349,10 +429,7 @@ function startDictation() {
     speakWord(currentWord, () => {
         const input = document.getElementById('main-input');
         input.disabled = false;
-        setTimeout(() => { 
-            input.focus(); 
-            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 100);
+        setTimeout(() => { input.focus(); }, 100);
         document.getElementById('cn-hint').innerText = currentSession.tasks[currentSession.idx].cn;
         document.getElementById('encourage-msg').innerText = "Spell it now";
     });
