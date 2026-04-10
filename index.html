@@ -19,6 +19,7 @@
             width: 100%; 
             height: 100vh;
             position: relative;
+            -webkit-user-select: auto; /* 允许交互以确保键盘能弹出 */
         }
 
         /* 顶部导航固定 */
@@ -26,7 +27,7 @@
             background: var(--main); color: white; 
             padding: calc(var(--safe-top) + 12px) 20px 12px; 
             display: flex; justify-content: space-between; align-items: center; 
-            position: fixed; /* 关键：固定在顶部 */
+            position: fixed; /* 固定在顶部 */
             top: 0; left: 0; right: 0;
             z-index: 2000; 
         }
@@ -57,21 +58,21 @@
             gap: 15px; 
         }
 
-        /* 测验练习区 (原红色方框1) - 设置为 order: 1 (在上) */
+        /* 测验练习区 (原代码块) - 设置为 order: 1 (在上) */
         .quiz-view { 
             background: var(--card); border-radius: 24px; padding: 25px 20px; 
             text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
             min-height: 260px; display: flex; flex-direction: column; 
             justify-content: center; align-items: center; 
-            order: 1; /* 视觉顺序 */
+            order: 1; /* 视觉顺序调至上方 */
         }
 
-        /* 设置与进度区 (原红色方框2) - 设置为 order: 2 (在下) */
+        /* 设置与进度区 (原代码块) - 设置为 order: 2 (在下) */
         .plan-essentials { 
             display: flex; 
             flex-direction: column; 
             gap: 12px; 
-            order: 2; /* 视觉顺序 */
+            order: 2; /* 视觉顺序调至下方 */
             padding-bottom: 40px; 
         }
 
@@ -94,7 +95,6 @@
         .sonic-capsule.playing .wave-bar { animation: wave 0.5s infinite ease-in-out alternate; }
         @keyframes wave { from { height: 6px; } to { height: 20px; } }
         
-        /* 优化输入框：去掉 -webkit-user-select 限制，确保可点击 */
         .word-input { 
             border: none; border-bottom: 4px solid #E2E8F0; font-size: 36px; width: 85%; text-align: center; outline: none; margin: 15px 0; color: var(--main); font-weight: bold; background: transparent; transition: 0.2s; border-radius: 0; -webkit-appearance: none;
         }
@@ -226,7 +226,7 @@
 </div>
 
 <script>
-// --- 以下逻辑 100% 完整保留自原文件 ---
+// --- 原有逻辑完全保留 ---
 const PRAISE_LIST = ["Amazing!", "Brilliant!", "Excellent!", "Perfect!", "Well done!", "Spot on!"];
 const DEFAULT_DICT = {
     "3-1": {
@@ -491,6 +491,9 @@ function runCloudTTS(word, onEnd, isAuto) {
         audio.onended = () => {
             if(document.getElementById('playBtn')) document.getElementById('playBtn').classList.remove('playing');
             if (onEnd) onEnd();
+            // 播报结束后自动聚焦弹出键盘
+            const input = document.getElementById('main-input');
+            if(!input.disabled) input.focus();
         };
     }).catch(() => isAuto ? runSystemTTS(word, onEnd) : (onEnd && onEnd()));
 }
@@ -502,6 +505,9 @@ function runSystemTTS(word, onEnd) {
     utter.onend = () => {
         if(document.getElementById('playBtn')) document.getElementById('playBtn').classList.remove('playing');
         if (onEnd) onEnd();
+        // 播报结束后自动聚焦弹出键盘
+        const input = document.getElementById('main-input');
+        if(!input.disabled) input.focus();
     };
     window.speechSynthesis.speak(utter);
 }
