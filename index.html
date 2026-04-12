@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>English Mastery Engine v5.2 - Unit Range Support</title>
+    <title>English Mastery Engine v5.2 - Bottom Nav</title>
     <style>
         :root { 
             --main: #4A90E2; --success: #27AE60; --wrong: #E74C3C; --bg: #F4F7F9; --card: #FFFFFF; --lock: #94A3B8; --warning: #F1C40F; --critical: #991B1B; 
             --safe-top: env(safe-area-inset-top);
+            --safe-bottom: env(safe-area-inset-bottom);
         }
         
         body { 
@@ -18,78 +19,57 @@
             width: 100%; 
             height: 100vh;
             position: relative;
-            /* 针对 iOS 优化：允许文本选择但禁止长按弹出系统菜单干扰 */
             -webkit-touch-callout: none;
         }
 
-        /* 修改 .header 样式，使其固定在底部 */
-.header { 
-    background: var(--main); 
-    color: white; 
-    /* 调整 Padding：取消顶部安全区，增加底部安全区留白，适配 iOS 全面屏 */
-    padding: 12px 20px calc(env(safe-area-inset-bottom) + 12px); 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    position: fixed; 
-    bottom: 0;         /* 关键：修改为 0 */
-    top: auto;        /* 关键：取消顶部固定 */
-    left: 0; 
-    right: 0;
-    z-index: 2000; 
-    box-shadow: 0 -4px 15px rgba(0,0,0,0.1); /* 增加向上的阴影，更有质感 */
-    border-radius: 20px 20px 0 0;           /* 可选：顶部加圆角 */
-}
+        /* 修改：Header 现在变更为底部固定栏 */
+        .header { 
+            background: var(--main); color: white; 
+            /* 适配 iOS 底部安全区 */
+            padding: 12px 20px calc(var(--safe-bottom) + 12px); 
+            display: flex; justify-content: space-between; align-items: center; 
+            position: fixed; 
+            bottom: 0; left: 0; right: 0;
+            z-index: 9999; /* 确保在最上层 */
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            border-radius: 20px 20px 0 0;
+        }
+
         .nav-tabs { display: flex; background: rgba(0,0,0,0.1); border-radius: 20px; padding: 3px; }
         .nav-tab { padding: 6px 15px; border-radius: 18px; font-size: 13px; cursor: pointer; transition: 0.3s; }
         .nav-tab.active { background: white; color: var(--main); font-weight: bold; }
 
-       /* 修改 .container 样式，使其避开底部的栏 */
-.container { 
-    max-width: 600px; 
-    margin: 0 auto; 
-    position: absolute;
-    /* 顶部现在可以直接顶到屏幕上方（或保留少许安全边距） */
-    top: env(safe-area-inset-top); 
-    /* 关键：为底部的导航栏预留出足够的空间 (约 65px + 安全距离) */
-    bottom: calc(65px + env(safe-area-inset-bottom)); 
-    left: 0; 
-    right: 0;
-    padding: 10px 15px;
-    overflow-y: auto; 
-    -webkit-overflow-scrolling: touch;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-}
-        #view-plan { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px; 
+        /* 修改：Container 现在需要避开底部栏 */
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            position: absolute;
+            top: var(--safe-top); 
+            /* 为底部留出足够空间：60px内容 + 安全高度 */
+            bottom: calc(70px + var(--safe-bottom)); 
+            left: 0; right: 0;
+            padding: 10px 15px;
+            overflow-y: auto; 
+            -webkit-overflow-scrolling: touch;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
         }
 
+        #view-plan { display: flex; flex-direction: column; gap: 15px; }
         .quiz-view { 
             background: var(--card); border-radius: 24px; padding: 25px 20px; 
             text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
             min-height: 260px; display: flex; flex-direction: column; 
             justify-content: center; align-items: center; 
-            order: 1; 
         }
 
-        .plan-essentials { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 12px; 
-            order: 2; 
-            padding-bottom: 40px; 
-        }
-
+        .plan-essentials { display: flex; flex-direction: column; gap: 12px; padding-bottom: 20px; }
         .settings-bar { background: #E2E8F0; padding: 10px; border-radius: 12px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; font-size: 13px; color: #475569; }
         .settings-group { display: flex; align-items: center; gap: 5px; }
         .settings-bar select { border: 1px solid #CBD5E1; border-radius: 6px; padding: 4px 6px; outline: none; background: white; font-size: 13px; }
         
         .plan-summary { background: white; border-radius: 20px; padding: 15px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-left: 6px solid var(--main); display: flex; justify-content: space-between; align-items: center; }
-        
         .stats-card { background: white; border-radius: 20px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .chart-container { height: 60px; display: flex; align-items: flex-end; gap: 8px; padding-top: 10px; justify-content: space-around; }
         .chart-bar { background: #E2E8F0; width: 100%; border-radius: 4px 4px 0 0; position: relative; transition: height 0.5s; }
@@ -105,7 +85,6 @@
         
         .word-input { 
             border: none; border-bottom: 4px solid #E2E8F0; font-size: 36px; width: 85%; text-align: center; outline: none; margin: 15px 0; color: var(--main); font-weight: bold; background: transparent; transition: 0.2s; border-radius: 0; -webkit-appearance: none;
-            /* 针对 iOS 优化：确保可以选中 */
             -webkit-user-select: text !important;
         }
         .word-input.correct { color: var(--success); border-bottom-color: var(--success); }
@@ -113,7 +92,6 @@
         .word-input.warning { color: var(--warning); border-bottom-color: var(--warning); }
         
         .answer-hint { font-size: 28px; color: var(--wrong); font-weight: bold; margin-top: 5px; letter-spacing: 1px; background: #FFF5F5; padding: 6px 20px; border-radius: 10px; border: 2px dashed var(--wrong); }
-        
         .collapse-box { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
         .collapse-box.locked { background: #F1F5F9; border-left: 5px solid var(--lock); opacity: 0.8; }
         .collapse-header { padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
@@ -141,6 +119,7 @@
     </style>
 </head>
 <body>
+
 <div class="container">
     <div id="view-plan">
         <div id="quiz-box" class="quiz-view">
@@ -153,18 +132,6 @@
             <input type="text" id="main-input" class="word-input" placeholder="..." autocomplete="off" autocapitalize="off" spellcheck="false" disabled>
             <div id="hint-box"></div><div id="feedback" style="height:30px; font-weight:bold; font-size:22px;"></div>
         </div>
-<div class="header">
-    <select id="termSelect" onchange="switchTerm()" style="background:none; border:none; color:white; font-weight:bold; font-size:16px; outline:none;">
-        <optgroup label="Grade 3"><option value="3-1">3rd Up</option><option value="3-2">3rd Down</option></optgroup>
-        <optgroup label="Grade 4"><option value="4-1">4th Up</option><option value="4-2">4th Down</option></optgroup>
-        <optgroup label="Grade 5"><option value="5-1">5th Up</option><option value="5-2">5th Down</option></optgroup>
-        <optgroup label="Grade 6"><option value="6-1">6th Up</option><option value="6-2">6th Down</option></optgroup>
-    </select>
-    <div class="nav-tabs">
-        <div class="nav-tab active" id="tab-plan" onclick="switchTab('plan')">Daily Plan</div>
-        <div class="nav-tab" id="tab-all" onclick="switchTab('all')">Word List</div>
-    </div>
-</div>
 
         <div class="plan-essentials">
             <div class="settings-bar">
@@ -233,7 +200,21 @@
     </div>
 </div>
 
+<div class="header">
+    <select id="termSelect" onchange="switchTerm()" style="background:none; border:none; color:white; font-weight:bold; font-size:16px; outline:none;">
+        <optgroup label="Grade 3"><option value="3-1">3rd Up</option><option value="3-2">3rd Down</option></optgroup>
+        <optgroup label="Grade 4"><option value="4-1">4th Up</option><option value="4-2">4th Down</option></optgroup>
+        <optgroup label="Grade 5"><option value="5-1">5th Up</option><option value="5-2">5th Down</option></optgroup>
+        <optgroup label="Grade 6"><option value="6-1">6th Up</option><option value="6-2">6th Down</option></optgroup>
+    </select>
+    <div class="nav-tabs">
+        <div class="nav-tab active" id="tab-plan" onclick="switchTab('plan')">Daily Plan</div>
+        <div class="nav-tab" id="tab-all" onclick="switchTab('all')">Word List</div>
+    </div>
+</div>
+
 <script>
+// --- 原有 JS 逻辑保持不变 ---
 const PRAISE_LIST = ["Amazing!", "Brilliant!", "Excellent!", "Perfect!", "Well done!", "Spot on!"];
 const DEFAULT_DICT = {
     "3-1": {
@@ -256,13 +237,11 @@ let wrongQueue = [];
 let audioCache = {};
 let sessionLog = { total: 0, firstPass: 0, errors: {}, startTime: null };
 
-// --- 针对 iOS 优化：强制唤起键盘函数 ---
 function focusAndPopupKeyboard() {
     const input = document.getElementById('main-input');
     if (input) {
-        input.disabled = false; // 确保非禁用状态
+        input.disabled = false;
         input.focus();
-        // 兼容 iPad，将光标移至末尾
         input.setSelectionRange(input.value.length, input.value.length);
     }
 }
@@ -434,14 +413,10 @@ function showSummaryReport() {
         </div>`;
 }
 
-// --- 针对 iOS 优化：handlePlayClick 是用户点击的第一步 ---
 function handlePlayClick() {
     const input = document.getElementById('main-input');
-    
-    // 关键：在点击的一瞬间立即同步获取焦点。这是 iOS 弹出键盘的唯一合法途径。
     input.disabled = false;
     input.focus(); 
-    
     if(!input.disabled) { isReplayed = true; }
     startDictation();
 }
@@ -450,19 +425,12 @@ function startDictation() {
     if(currentSession.idx >= currentSession.tasks.length) return;
     lockBox(); 
     const currentWord = currentSession.tasks[currentSession.idx].en;
-    
     speakWord(currentWord, () => {
-        // 音频播放完毕后的异步回调
         const input = document.getElementById('main-input');
         input.disabled = false;
         document.getElementById('cn-hint').innerText = currentSession.tasks[currentSession.idx].cn;
         document.getElementById('encourage-msg').innerText = "Spell it now";
-        
-        // 再次强制聚焦。因为刚才 handlePlayClick 已经同步获取过焦点，
-        // 这里的异步 focus() 在 iOS 上成功率会显著提高。
-        setTimeout(() => {
-            input.focus();
-        }, 50);
+        setTimeout(() => { input.focus(); }, 50);
     });
 }
 
@@ -487,7 +455,6 @@ function handleInput(e) {
         if(pt) pt.count++; else appData.curve.push({date: today, count: 1});
         save();
         
-        // 自动切下一题
         setTimeout(() => { 
             renderQuiz(); 
             renderTodayList(); 
@@ -523,28 +490,19 @@ function speakWord(word, onEnd) {
 
 function runCloudTTS(word, onEnd, isAuto) {
     const audio = audioCache[word] || new Audio(`https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=2`);
-    
     audio.onended = () => {
         if(document.getElementById('playBtn')) document.getElementById('playBtn').classList.remove('playing');
         if (onEnd) onEnd();
     };
-    
     audio.onerror = () => isAuto ? runSystemTTS(word, onEnd) : (onEnd && onEnd());
-    
     const promise = audio.play();
-    if (promise !== undefined) {
-        promise.catch(() => {
-            if(isAuto) runSystemTTS(word, onEnd);
-            else onEnd && onEnd();
-        });
-    }
+    if (promise !== undefined) { promise.catch(() => { if(isAuto) runSystemTTS(word, onEnd); else onEnd && onEnd(); }); }
 }
 
 function runSystemTTS(word, onEnd) {
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(word === "I" ? "I " : word);
-    utter.lang = 'en-US'; 
-    utter.rate = 0.85; 
+    utter.lang = 'en-US'; utter.rate = 0.85; 
     utter.onend = () => {
         if(document.getElementById('playBtn')) document.getElementById('playBtn').classList.remove('playing');
         if (onEnd) onEnd();
@@ -608,7 +566,8 @@ function switchTab(tab) {
     document.getElementById('view-plan').className = tab === 'plan' ? '' : 'hidden';
     document.getElementById('view-all').className = tab === 'all' ? '' : 'hidden';
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('tab-' + tab).classList.add('active'); if(tab === 'all') renderFullList();
+    document.getElementById('tab-' + tab).classList.add('active'); 
+    if(tab === 'all') renderFullList();
 }
 
 function renderFullList() {
