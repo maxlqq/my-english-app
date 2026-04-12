@@ -3,24 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>English Engine v5.7 - Full Pro</title>
+    <title>English Pro v5.8</title>
     <style>
         :root { 
             --main: #4A90E2; --success: #27AE60; --wrong: #E74C3C; --bg: #F4F7F9; --card: #FFFFFF;
             --safe-top: env(safe-area-inset-top);
             --safe-bottom: env(safe-area-inset-bottom);
-            --header-h: 54px;
         }
         
         body { 
             font-family: 'PingFang SC', system-ui; background: var(--bg); margin: 0; 
             overflow: hidden; position: fixed; width: 100%; height: 100%;
-            overscroll-behavior: none; -webkit-touch-callout: none;
+            overscroll-behavior: none; -webkit-tap-highlight-color: transparent;
         }
 
         .header { 
             background: var(--main); color: white; padding: var(--safe-top) 15px 0; 
-            height: var(--header-h); display: flex; justify-content: space-between; align-items: center; 
+            height: 54px; display: flex; justify-content: space-between; align-items: center; 
             position: relative; z-index: 2000; 
         }
 
@@ -30,21 +29,21 @@
 
         .container { 
             max-width: 600px; margin: 0 auto; 
-            height: calc(100% - var(--header-h) - var(--safe-top));
-            padding: 8px 15px var(--safe-bottom);
+            height: calc(100% - 54px - var(--safe-top));
+            padding: 10px 15px var(--safe-bottom);
             display: flex; flex-direction: column; box-sizing: border-box;
         }
 
-        #view-plan, #view-all { display: flex; flex-direction: column; height: 100%; gap: 8px; }
+        #view-plan, #view-all { display: flex; flex-direction: column; height: 100%; gap: 10px; }
 
         .quiz-view { 
-            background: var(--card); border-radius: 24px; padding: 10px; 
+            background: var(--card); border-radius: 24px; padding: 15px; 
             text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
             flex: 1; display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; order: 1;
+            justify-content: center; align-items: center; position: relative;
         }
 
-        .plan-essentials { flex: 0 0 auto; display: flex; flex-direction: column; gap: 6px; order: 2; padding-bottom: 5px; }
+        .plan-essentials { flex: 0 0 auto; display: flex; flex-direction: column; gap: 8px; }
 
         .settings-bar { background: #E2E8F0; padding: 6px 10px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
 
@@ -61,57 +60,55 @@
             text-align: center; outline: none; margin: 10px 0; color: var(--main); 
             font-weight: bold; background: transparent; border-radius: 0; -webkit-appearance: none;
         }
-        .word-input:read-only { opacity: 0.6; }
         .word-input.correct { color: var(--success); border-bottom-color: var(--success); }
         .word-input.error { color: var(--wrong); border-bottom-color: var(--wrong); animation: shake 0.4s; }
         
-        .answer-hint { font-size: 22px; color: var(--wrong); font-weight: bold; margin-top: 4px; background: #FFF5F5; padding: 4px 12px; border-radius: 8px; border: 2px dashed var(--wrong); }
+        .answer-hint { font-size: 22px; color: var(--wrong); font-weight: bold; margin-top: 5px; background: #FFF5F5; padding: 4px 12px; border-radius: 8px; border: 2px dashed var(--wrong); }
         
         .collapse-box { background: white; border-radius: 15px; overflow: hidden; }
-        .collapse-box.locked { opacity: 0.5; pointer-events: none; filter: grayscale(1); }
+        .collapse-box.locked { opacity: 0.5; pointer-events: none; }
         .collapse-header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; color:#475569; }
-        .collapse-content { display: none; max-height: 22vh; overflow-y: auto; border-top: 1px solid #EEE; -webkit-overflow-scrolling: touch; }
+        .collapse-content { display: none; max-height: 25vh; overflow-y: auto; border-top: 1px solid #EEE; -webkit-overflow-scrolling: touch; }
         .collapse-content.show { display: block; }
         
-        .word-item { padding: 10px 15px; border-bottom: 1px solid #F7FAFC; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
-        .mastery-tag { font-size: 10px; padding: 2px 6px; border-radius: 8px; background: #F1F5F9; color: #64748B; }
+        .word-item { padding: 12px 15px; border-bottom: 1px solid #F7FAFC; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+        .mastery-info { font-size: 10px; color: #94A3B8; text-align: right; }
 
-        .btn-mini { padding: 3px 8px; font-size: 10px; background: white; border: 1px solid #CBD5E1; border-radius: 6px; }
+        .lib-scroll { flex: 1; overflow-y: auto; background: white; border-radius: 20px; }
         
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
         .hidden { display: none !important; }
-        .lib-scroll { flex: 1; overflow-y: auto; background: white; border-radius: 20px; }
+        .btn-mini { padding: 4px 8px; font-size: 11px; background: white; border: 1px solid #CBD5E1; border-radius: 6px; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <select id="termSelect" onchange="switchTerm()" style="background:none; border:none; color:white; font-weight:bold; font-size:16px; outline:none;">
-        <optgroup label="Grade 3"><option value="3-1">3rd Up</option><option value="3-2">3rd Down</option></optgroup>
-        <optgroup label="Grade 4"><option value="4-1">4th Up</option><option value="4-2">4th Down</option></optgroup>
+        <option value="3-1">3rd Up</option><option value="3-2">3rd Down</option>
+        <option value="4-1">4th Up</option><option value="4-2">4th Down</option>
     </select>
     <div class="nav-tabs">
         <div class="nav-tab active" id="tab-plan" onclick="switchTab('plan')">Plan</div>
-        <div class="nav-tab" id="tab-all" onclick="switchTab('all')">Lib</div>
+        <div class="nav-tab" id="tab-all" onclick="switchTab('all')">Library</div>
     </div>
 </div>
 
 <div class="container">
     <div id="view-plan">
         <div id="quiz-box" class="quiz-view">
-            <div id="cn-hint" style="font-size: 22px; font-weight: bold;">Click Play</div>
+            <div id="cn-hint" style="font-size: 24px; font-weight: bold;">Start Dictation</div>
             <div id="encourage-msg" style="font-size: 12px; color: var(--main); height: 16px; margin: 4px 0;"></div>
             <div id="playBtn" class="sonic-capsule" onclick="handlePlayClick()">
-                <div class="wave-bar" style="animation-delay: 0s;"></div><div class="wave-bar" style="animation-delay: 0.1s;"></div>
-                <div class="wave-bar" style="animation-delay: 0.2s;"></div><div class="wave-bar" style="animation-delay: 0.3s;"></div>
+                <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
             </div>
             <input type="text" id="main-input" class="word-input" placeholder="..." autocomplete="off" autocapitalize="off" spellcheck="false">
-            <div id="hint-box"></div><div id="feedback" style="height:24px; font-weight:bold; font-size:18px;"></div>
+            <div id="hint-box"></div><div id="feedback" style="height:24px; font-weight:bold;"></div>
         </div>
 
         <div class="plan-essentials">
             <div class="settings-bar">
-                <div style="display:flex; gap:4px; align-items:center;">
+                <div style="display:flex; gap:5px; align-items:center;">
                     <span>Range:</span>
                     <select id="startUnit" onchange="changeUnitRange()"></select>
                     <span>-</span>
@@ -132,25 +129,23 @@
             <div id="collapse-container" class="collapse-box">
                 <div class="collapse-header" onclick="manualToggle()">
                     <span>📘 Today's List</span>
-                    <span id="lock-status" style="font-size: 10px; color: var(--main);">🔓 Ready</span>
+                    <span id="lock-status" style="font-size: 10px; color: #94A3B8;">🔓 Ready</span>
                 </div>
-                <div id="today-content" class="collapse-content">
-                    <div id="today-list"></div>
-                </div>
+                <div id="today-content" class="collapse-content"><div id="today-list"></div></div>
             </div>
         </div>
     </div>
 
     <div id="view-all" class="hidden">
         <div class="lib-scroll" id="full-list-container"></div>
-        <button onclick="switchTab('plan')" style="margin-top:8px; padding:12px; background:var(--main); color:white; border:none; border-radius:12px; font-weight:bold;">Back</button>
+        <button onclick="switchTab('plan')" style="margin-top:10px; padding:12px; background:var(--main); color:white; border:none; border-radius:12px; font-weight:bold;">Return</button>
     </div>
 </div>
 
 <script>
-// --- 初始化数据结构 ---
+// --- 核心数据逻辑 ---
 const DEFAULT_DICT = {
-    "3-1": { "U1": [{en:"I",cn:"我"},{en:"am",cn:"是"},{en:"hello",cn:"你好"}], "U2": [{en:"cat",cn:"猫"}] }
+    "3-1": { "U1": [{en:"I",cn:"我"},{en:"am",cn:"是"}], "U2": [{en:"hello",cn:"你好"}] }
 };
 
 let DICT_DB = JSON.parse(localStorage.getItem('JX_CUSTOM_DICT') || JSON.stringify(DEFAULT_DICT));
@@ -171,9 +166,10 @@ function updateUnitSelects() {
     const opts = units.map(u => `<option value="${u}">${u}</option>`).join('');
     document.getElementById('startUnit').innerHTML = opts;
     document.getElementById('endUnit').innerHTML = opts;
-    if (appData.unitRange[appData.curTerm]) {
-        document.getElementById('startUnit').value = appData.unitRange[appData.curTerm].start;
-        document.getElementById('endUnit').value = appData.unitRange[appData.curTerm].end;
+    const range = appData.unitRange[appData.curTerm];
+    if (range) {
+        document.getElementById('startUnit').value = range.start;
+        document.getElementById('endUnit').value = range.end;
     }
 }
 
@@ -189,11 +185,11 @@ function loadTermSession(term) {
     currentSession = appData.termSessions[term];
 }
 
-// --- 听写与自动聚焦 ---
+// --- 听写与 iPhone 自动聚焦优化 ---
 function handlePlayClick() {
     const input = document.getElementById('main-input');
     input.focus(); 
-    input.readOnly = true; 
+    input.readOnly = true; // 播放时只读，防止误触键盘收起
     lockList(true);
     startDictation();
 }
@@ -202,23 +198,23 @@ function startDictation() {
     const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
     if(currentSession.idx >= tasks.length) {
         if(!isReviewMode && wrongQueue.length > 0) {
-            isReviewMode = true; currentSession.idx = 0; alert("Review Missed Words"); startDictation();
+            isReviewMode = true; currentSession.idx = 0; alert("Entering Review"); startDictation();
         } else { finishSession(); }
         return;
     }
-    
     const wordObj = tasks[currentSession.idx];
-    document.getElementById('playBtn').classList.add('playing');
+    const btn = document.getElementById('playBtn');
+    btn.classList.add('playing');
     
     const audio = new Audio(`https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(wordObj.en)}&type=2`);
     audio.onended = () => {
-        document.getElementById('playBtn').classList.remove('playing');
+        btn.classList.remove('playing');
         document.getElementById('cn-hint').innerText = wordObj.cn;
         const input = document.getElementById('main-input');
-        input.readOnly = false;
+        input.readOnly = false; // 播报完恢复输入
         input.focus(); 
     };
-    audio.play().catch(() => { /* 处理iOS静音开关限制 */ });
+    audio.play();
 }
 
 function handleInput(e) {
@@ -228,9 +224,11 @@ function handleInput(e) {
     
     if(val === target) {
         e.target.classList.add('correct');
-        // 正确率逻辑：增加掌握度
+        // 正确率逻辑：增加正确计数
         if(!isReviewMode) {
-            appData.mastery[tasks[currentSession.idx].en] = (appData.mastery[tasks[currentSession.idx].en] || 0) + 1;
+            const word = tasks[currentSession.idx].en;
+            if(!appData.mastery[word]) appData.mastery[word] = { c: 0, w: 0 };
+            appData.mastery[word].c++;
         }
         currentSession.idx++; localWrongCount = 0;
         
@@ -247,15 +245,67 @@ function handleInput(e) {
 function triggerError(el, target) {
     el.classList.add('error');
     const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
-    if(!isReviewMode && !wrongQueue.find(w => w.en === tasks[currentSession.idx].en)) {
-        wrongQueue.push(tasks[currentSession.idx]);
+    const word = tasks[currentSession.idx].en;
+    if(!isReviewMode) {
+        if(!appData.mastery[word]) appData.mastery[word] = { c: 0, w: 0 };
+        appData.mastery[word].w++; // 错误计数
+        if(!wrongQueue.find(w => w.en === word)) wrongQueue.push(tasks[currentSession.idx]);
     }
     localWrongCount++;
     if(localWrongCount >= 2) document.getElementById('hint-box').innerHTML = `<div class="answer-hint">${target}</div>`;
     setTimeout(() => el.classList.remove('error'), 400);
 }
 
-// --- 列表控制 ---
+// --- 列表与正确率显示 ---
+function renderFullLibrary() {
+    let html = "";
+    const termData = DICT_DB[appData.curTerm] || {};
+    Object.keys(termData).forEach(u => {
+        html += `<div style="background:#f1f5f9; padding:8px 15px; font-size:11px; font-weight:bold;">${u}</div>`;
+        html += termData[u].map(w => {
+            const m = appData.mastery[w.en] || { c: 0, w: 0 };
+            const rate = (m.c + m.w === 0) ? 0 : Math.round((m.c / (m.c + m.w)) * 100);
+            return `<div class="word-item">
+                <div><b>${w.en}</b> <small>${w.cn}</small></div>
+                <div class="mastery-info">Correct: ${m.c}<br>Accuracy: ${rate}%</div>
+            </div>`;
+        }).join('');
+    });
+    document.getElementById('full-list-container').innerHTML = html;
+}
+
+// --- 导入功能修复 ---
+function triggerImport() { document.getElementById('importFile').click(); }
+function restoreData(event) {
+    const file = event.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const imported = JSON.parse(e.target.result);
+            // 兼容性检查：如果导入的是单词库
+            if (imported["3-1"] || imported["4-1"]) {
+                DICT_DB = imported;
+                localStorage.setItem('JX_CUSTOM_DICT', JSON.stringify(DICT_DB));
+                alert("Word Library Imported!");
+            } else if (imported.mastery) { // 如果导入的是用户数据
+                appData = imported;
+                save();
+                alert("User Data Imported!");
+            }
+            location.reload();
+        } catch(err) { alert("JSON Format Error!"); }
+    };
+    reader.readAsText(file);
+}
+
+function backupData() {
+    const blob = new Blob([JSON.stringify(appData)], {type: "application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = "mastery_pro.json"; a.click();
+}
+
+// --- 通用逻辑 ---
 function lockList(lock) {
     isLocked = lock;
     const container = document.getElementById('collapse-container');
@@ -268,9 +318,7 @@ function lockList(lock) {
         renderTodayList();
     }
 }
-
 function manualToggle() { if(!isLocked) document.getElementById('today-content').classList.toggle('show'); }
-
 function renderTodayList() {
     document.getElementById('today-list').innerHTML = currentSession.tasks.map((w, i) => `
         <div class="word-item">
@@ -278,43 +326,14 @@ function renderTodayList() {
             <span>${i < currentSession.idx ? '✅' : '⏳'}</span>
         </div>`).join('');
 }
-
-function renderFullLibrary() {
-    let html = "";
-    const termData = DICT_DB[appData.curTerm] || {};
-    Object.keys(termData).forEach(u => {
-        html += `<div style="background:#f1f5f9; padding:8px 15px; font-size:11px; font-weight:bold;">${u}</div>`;
-        html += termData[u].map(w => `
-            <div class="word-item">
-                <div><b>${w.en}</b> <small>${w.cn}</small></div>
-                <div class="mastery-tag">Mastery: ${appData.mastery[w.en] || 0}</div>
-            </div>`).join('');
-    });
-    document.getElementById('full-list-container').innerHTML = html;
+function renderQuiz() {
+    const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
+    document.getElementById('progress-text').innerText = `${currentSession.idx} / ${tasks.length} ${isReviewMode ? '(Review)' : ''}`;
 }
-
-// --- 数据导入导出 ---
-function backupData() {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
-    const dlAnchor = document.createElement('a');
-    dlAnchor.setAttribute("href", dataStr); dlAnchor.setAttribute("download", "mastery_pro_data.json");
-    dlAnchor.click();
+function finishSession() {
+    document.getElementById('quiz-box').innerHTML = `<h2>Well Done!</h2><button onclick="location.reload()" style="padding:10px 20px; border-radius:10px; border:none; background:var(--main); color:white;">New Plan</button>`;
+    appData.streak++; save();
 }
-
-function triggerImport() { document.getElementById('importFile').click(); }
-function restoreData(event) {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        try {
-            const imported = JSON.parse(e.target.result);
-            if(imported.mastery) { appData = imported; save(); location.reload(); }
-        } catch(err) { alert("Invalid File"); }
-    };
-    reader.readAsText(file);
-}
-
-// --- 通用 ---
 function switchTab(tab) {
     document.getElementById('view-plan').className = tab === 'plan' ? '' : 'hidden';
     document.getElementById('view-all').className = tab === 'all' ? '' : 'hidden';
@@ -322,17 +341,6 @@ function switchTab(tab) {
     document.getElementById('tab-' + (tab==='plan'?'plan':'all')).classList.add('active');
     if(tab==='all') renderFullLibrary();
 }
-
-function renderQuiz() {
-    const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
-    document.getElementById('progress-text').innerText = `${currentSession.idx} / ${tasks.length} ${isReviewMode ? '(Review)' : ''}`;
-}
-
-function finishSession() {
-    document.getElementById('quiz-box').innerHTML = `<h2 style="color:var(--success)">Perfect!</h2><button onclick="location.reload()" style="padding:10px 25px; border-radius:12px; background:var(--main); color:white; border:none;">New Plan</button>`;
-    appData.streak++; save();
-}
-
 function switchTerm() { appData.curTerm = document.getElementById('termSelect').value; appData.termSessions = {}; save(); location.reload(); }
 function changeUnitRange() {
     appData.unitRange[appData.curTerm] = { start: document.getElementById('startUnit').value, end: document.getElementById('endUnit').value };
