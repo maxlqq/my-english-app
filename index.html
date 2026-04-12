@@ -3,24 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>English Pro v5.8</title>
+    <title>English Mastery Pro - Recovered</title>
     <style>
         :root { 
             --main: #4A90E2; --success: #27AE60; --wrong: #E74C3C; --bg: #F4F7F9; --card: #FFFFFF;
             --safe-top: env(safe-area-inset-top);
-            --safe-bottom: env(safe-area-inset-bottom);
         }
         
         body { 
             font-family: 'PingFang SC', system-ui; background: var(--bg); margin: 0; 
             overflow: hidden; position: fixed; width: 100%; height: 100%;
-            overscroll-behavior: none; -webkit-tap-highlight-color: transparent;
         }
 
         .header { 
             background: var(--main); color: white; padding: var(--safe-top) 15px 0; 
             height: 54px; display: flex; justify-content: space-between; align-items: center; 
-            position: relative; z-index: 2000; 
+            z-index: 2000; position: relative;
         }
 
         .nav-tabs { display: flex; background: rgba(0,0,0,0.1); border-radius: 20px; padding: 2px; }
@@ -30,22 +28,18 @@
         .container { 
             max-width: 600px; margin: 0 auto; 
             height: calc(100% - 54px - var(--safe-top));
-            padding: 10px 15px var(--safe-bottom);
-            display: flex; flex-direction: column; box-sizing: border-box;
+            padding: 10px 15px; display: flex; flex-direction: column; box-sizing: border-box;
         }
 
         #view-plan, #view-all { display: flex; flex-direction: column; height: 100%; gap: 10px; }
 
         .quiz-view { 
-            background: var(--card); border-radius: 24px; padding: 15px; 
+            background: var(--card); border-radius: 24px; padding: 20px; 
             text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
-            flex: 1; display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; position: relative;
+            flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
 
-        .plan-essentials { flex: 0 0 auto; display: flex; flex-direction: column; gap: 8px; }
-
-        .settings-bar { background: #E2E8F0; padding: 6px 10px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
+        .settings-bar { background: #E2E8F0; padding: 8px 10px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
 
         .sonic-capsule { 
             background: #EBF4FF; width: 100px; height: 40px; border-radius: 20px; 
@@ -57,28 +51,29 @@
         
         .word-input { 
             border: none; border-bottom: 4px solid #E2E8F0; font-size: 32px; width: 85%; 
-            text-align: center; outline: none; margin: 10px 0; color: var(--main); 
-            font-weight: bold; background: transparent; border-radius: 0; -webkit-appearance: none;
+            text-align: center; outline: none; margin: 10px 0; color: var(--main); font-weight: bold; background: transparent;
         }
         .word-input.correct { color: var(--success); border-bottom-color: var(--success); }
         .word-input.error { color: var(--wrong); border-bottom-color: var(--wrong); animation: shake 0.4s; }
         
-        .answer-hint { font-size: 22px; color: var(--wrong); font-weight: bold; margin-top: 5px; background: #FFF5F5; padding: 4px 12px; border-radius: 8px; border: 2px dashed var(--wrong); }
+        .answer-hint { font-size: 24px; color: var(--wrong); font-weight: bold; background: #FFF5F5; padding: 5px 15px; border-radius: 10px; border: 2px dashed var(--wrong); margin-top: 10px; }
         
         .collapse-box { background: white; border-radius: 15px; overflow: hidden; }
         .collapse-box.locked { opacity: 0.5; pointer-events: none; }
-        .collapse-header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; color:#475569; }
-        .collapse-content { display: none; max-height: 25vh; overflow-y: auto; border-top: 1px solid #EEE; -webkit-overflow-scrolling: touch; }
+        .collapse-header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; }
+        .collapse-content { display: none; max-height: 25vh; overflow-y: auto; border-top: 1px solid #EEE; }
         .collapse-content.show { display: block; }
         
         .word-item { padding: 12px 15px; border-bottom: 1px solid #F7FAFC; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
-        .mastery-info { font-size: 10px; color: #94A3B8; text-align: right; }
+        .mastery-tag { font-size: 10px; background: #F1F5F9; padding: 2px 6px; border-radius: 4px; color: #64748B; }
 
         .lib-scroll { flex: 1; overflow-y: auto; background: white; border-radius: 20px; }
-        
+        .summary-card { text-align: left; width: 100%; }
+        .summary-stat { font-size: 22px; color: var(--main); font-weight: bold; text-align: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px;}
+
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
         .hidden { display: none !important; }
-        .btn-mini { padding: 4px 8px; font-size: 11px; background: white; border: 1px solid #CBD5E1; border-radius: 6px; }
+        .btn-mini { padding: 4px 8px; font-size: 10px; background: white; border: 1px solid #CBD5E1; border-radius: 6px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -97,26 +92,26 @@
 <div class="container">
     <div id="view-plan">
         <div id="quiz-box" class="quiz-view">
-            <div id="cn-hint" style="font-size: 24px; font-weight: bold;">Start Dictation</div>
+            <div id="cn-hint" style="font-size: 24px; font-weight: bold;">Ready?</div>
             <div id="encourage-msg" style="font-size: 12px; color: var(--main); height: 16px; margin: 4px 0;"></div>
             <div id="playBtn" class="sonic-capsule" onclick="handlePlayClick()">
                 <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
             </div>
-            <input type="text" id="main-input" class="word-input" placeholder="..." autocomplete="off" autocapitalize="off" spellcheck="false">
-            <div id="hint-box"></div><div id="feedback" style="height:24px; font-weight:bold;"></div>
+            <input type="text" id="main-input" class="word-input" placeholder="..." autocomplete="off" autocapitalize="off" spellcheck="false" disabled>
+            <div id="hint-box"></div><div id="feedback" style="height:24px; font-weight:bold; font-size:18px;"></div>
         </div>
 
         <div class="plan-essentials">
             <div class="settings-bar">
                 <div style="display:flex; gap:5px; align-items:center;">
-                    <span>Range:</span>
+                    <span>Unit:</span>
                     <select id="startUnit" onchange="changeUnitRange()"></select>
                     <span>-</span>
                     <select id="endUnit" onchange="changeUnitRange()"></select>
                 </div>
                 <div style="display: flex; gap: 4px;">
                     <button class="btn-mini" onclick="backupData()">Exp</button>
-                    <button class="btn-mini" onclick="triggerImport()">Imp</button>
+                    <button class="btn-mini" onclick="triggerImportAll()">Imp</button>
                     <input type="file" id="importFile" class="hidden" accept=".json" onchange="restoreData(event)">
                 </div>
             </div>
@@ -137,13 +132,18 @@
     </div>
 
     <div id="view-all" class="hidden">
+        <div class="settings-bar" style="margin-bottom:8px;">
+            <span>Import New Library:</span>
+            <button class="btn-mini" onclick="document.getElementById('importLibFile').click()">Imp Lib</button>
+            <input type="file" id="importLibFile" class="hidden" accept=".json" onchange="importToLibrary(event)">
+        </div>
         <div class="lib-scroll" id="full-list-container"></div>
-        <button onclick="switchTab('plan')" style="margin-top:10px; padding:12px; background:var(--main); color:white; border:none; border-radius:12px; font-weight:bold;">Return</button>
+        <button onclick="switchTab('plan')" style="margin-top:10px; padding:12px; background:var(--main); color:white; border:none; border-radius:12px; font-weight:bold;">Back</button>
     </div>
 </div>
 
 <script>
-// --- 核心数据逻辑 ---
+// --- 核心恢复逻辑 ---
 const DEFAULT_DICT = {
     "3-1": { "U1": [{en:"I",cn:"我"},{en:"am",cn:"是"}], "U2": [{en:"hello",cn:"你好"}] }
 };
@@ -153,6 +153,7 @@ let appData = JSON.parse(localStorage.getItem('JX_ENGINE_V95_SONIC') || '{"maste
 
 let currentSession = { tasks: [], idx: 0 };
 let wrongQueue = [], localWrongCount = 0, isReviewMode = false, isLocked = false;
+let sessionLog = { total: 0, firstPass: 0, startTime: null };
 
 function initApp() {
     document.getElementById('termSelect').value = appData.curTerm;
@@ -161,6 +162,7 @@ function initApp() {
     updateUI(); renderTodayList(); renderQuiz();
 }
 
+// 恢复：掌握度/正确率统计逻辑
 function updateUnitSelects() {
     const units = Object.keys(DICT_DB[appData.curTerm] || {});
     const opts = units.map(u => `<option value="${u}">${u}</option>`).join('');
@@ -183,13 +185,16 @@ function loadTermSession(term) {
         appData.termSessions[term] = { tasks: pool.sort(() => Math.random() - 0.5).slice(0, 15), idx: 0 };
     }
     currentSession = appData.termSessions[term];
+    sessionLog.total = currentSession.tasks.length;
+    sessionLog.firstPass = 0;
+    sessionLog.startTime = new Date();
 }
 
-// --- 听写与 iPhone 自动聚焦优化 ---
+// 恢复：iPhone 自动聚焦逻辑
 function handlePlayClick() {
     const input = document.getElementById('main-input');
+    input.disabled = false;
     input.focus(); 
-    input.readOnly = true; // 播放时只读，防止误触键盘收起
     lockList(true);
     startDictation();
 }
@@ -198,20 +203,18 @@ function startDictation() {
     const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
     if(currentSession.idx >= tasks.length) {
         if(!isReviewMode && wrongQueue.length > 0) {
-            isReviewMode = true; currentSession.idx = 0; alert("Entering Review"); startDictation();
-        } else { finishSession(); }
+            isReviewMode = true; currentSession.idx = 0; alert("Reviewing Errors"); startDictation();
+        } else { showSummaryReport(); }
         return;
     }
     const wordObj = tasks[currentSession.idx];
-    const btn = document.getElementById('playBtn');
-    btn.classList.add('playing');
-    
+    document.getElementById('playBtn').classList.add('playing');
     const audio = new Audio(`https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(wordObj.en)}&type=2`);
     audio.onended = () => {
-        btn.classList.remove('playing');
+        document.getElementById('playBtn').classList.remove('playing');
         document.getElementById('cn-hint').innerText = wordObj.cn;
         const input = document.getElementById('main-input');
-        input.readOnly = false; // 播报完恢复输入
+        input.disabled = false;
         input.focus(); 
     };
     audio.play();
@@ -224,14 +227,12 @@ function handleInput(e) {
     
     if(val === target) {
         e.target.classList.add('correct');
-        // 正确率逻辑：增加正确计数
-        if(!isReviewMode) {
-            const word = tasks[currentSession.idx].en;
-            if(!appData.mastery[word]) appData.mastery[word] = { c: 0, w: 0 };
-            appData.mastery[word].c++;
+        // 恢复掌握度：如果第一次就对，增加分数
+        if(!isReviewMode && localWrongCount === 0) {
+            sessionLog.firstPass++;
+            appData.mastery[tasks[currentSession.idx].en] = (appData.mastery[tasks[currentSession.idx].en] || 0) + 1;
         }
         currentSession.idx++; localWrongCount = 0;
-        
         setTimeout(() => { 
             e.target.value = ""; e.target.classList.remove('correct');
             document.getElementById('hint-box').innerHTML = "";
@@ -244,78 +245,90 @@ function handleInput(e) {
 
 function triggerError(el, target) {
     el.classList.add('error');
-    const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
-    const word = tasks[currentSession.idx].en;
     if(!isReviewMode) {
-        if(!appData.mastery[word]) appData.mastery[word] = { c: 0, w: 0 };
-        appData.mastery[word].w++; // 错误计数
-        if(!wrongQueue.find(w => w.en === word)) wrongQueue.push(tasks[currentSession.idx]);
+        if(!wrongQueue.find(w => w.en === currentSession.tasks[currentSession.idx].en)) {
+            wrongQueue.push(currentSession.tasks[currentSession.idx]);
+        }
     }
     localWrongCount++;
     if(localWrongCount >= 2) document.getElementById('hint-box').innerHTML = `<div class="answer-hint">${target}</div>`;
     setTimeout(() => el.classList.remove('error'), 400);
 }
 
-// --- 列表与正确率显示 ---
+// 恢复：正确率报告页面
+function showSummaryReport() {
+    const accuracy = ((sessionLog.firstPass / sessionLog.total) * 100).toFixed(1);
+    const duration = Math.floor((new Date() - sessionLog.startTime) / 1000);
+    document.getElementById('quiz-box').innerHTML = `
+        <div class="summary-card">
+            <div class="summary-stat">Accuracy: ${accuracy}%</div>
+            <div style="text-align:center; font-size:14px; color:#64748B;">
+                Time: ${duration}s | Total: ${sessionLog.total}<br><br>
+                <button onclick="location.reload()" style="padding:10px 20px; background:var(--main); color:white; border:none; border-radius:10px;">New Plan</button>
+            </div>
+        </div>`;
+    appData.streak++; save();
+}
+
+// 恢复：单词库导入逻辑 (Imp Lib)
+function importToLibrary(event) {
+    const file = event.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            let data = JSON.parse(e.target.result);
+            DICT_DB[appData.curTerm] = data; // 覆盖当前学期的单词库
+            localStorage.setItem('JX_CUSTOM_DICT', JSON.stringify(DICT_DB));
+            alert("Library Updated!"); location.reload();
+        } catch (err) { alert("Invalid JSON Format"); }
+    };
+    reader.readAsText(file);
+}
+
+// 恢复：全数据备份/恢复 (Exp / Imp)
+function backupData() {
+    const blob = new Blob([JSON.stringify(appData)], {type: "application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = "mastery_backup.json"; a.click();
+}
+
+function triggerImportAll() { document.getElementById('importFile').click(); }
+function restoreData(event) {
+    const file = event.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const imported = JSON.parse(e.target.result);
+            if(imported.mastery) { appData = imported; save(); alert("Data Restored!"); location.reload(); }
+        } catch(err) { alert("Restore Failed"); }
+    };
+    reader.readAsText(file);
+}
+
+// 恢复：Library 中显示掌握度
 function renderFullLibrary() {
     let html = "";
     const termData = DICT_DB[appData.curTerm] || {};
     Object.keys(termData).forEach(u => {
         html += `<div style="background:#f1f5f9; padding:8px 15px; font-size:11px; font-weight:bold;">${u}</div>`;
-        html += termData[u].map(w => {
-            const m = appData.mastery[w.en] || { c: 0, w: 0 };
-            const rate = (m.c + m.w === 0) ? 0 : Math.round((m.c / (m.c + m.w)) * 100);
-            return `<div class="word-item">
+        html += termData[u].map(w => `
+            <div class="word-item">
                 <div><b>${w.en}</b> <small>${w.cn}</small></div>
-                <div class="mastery-info">Correct: ${m.c}<br>Accuracy: ${rate}%</div>
-            </div>`;
-        }).join('');
+                <div class="mastery-tag">Mastery: ${appData.mastery[w.en] || 0}</div>
+            </div>`).join('');
     });
     document.getElementById('full-list-container').innerHTML = html;
 }
 
-// --- 导入功能修复 ---
-function triggerImport() { document.getElementById('importFile').click(); }
-function restoreData(event) {
-    const file = event.target.files[0];
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        try {
-            const imported = JSON.parse(e.target.result);
-            // 兼容性检查：如果导入的是单词库
-            if (imported["3-1"] || imported["4-1"]) {
-                DICT_DB = imported;
-                localStorage.setItem('JX_CUSTOM_DICT', JSON.stringify(DICT_DB));
-                alert("Word Library Imported!");
-            } else if (imported.mastery) { // 如果导入的是用户数据
-                appData = imported;
-                save();
-                alert("User Data Imported!");
-            }
-            location.reload();
-        } catch(err) { alert("JSON Format Error!"); }
-    };
-    reader.readAsText(file);
-}
-
-function backupData() {
-    const blob = new Blob([JSON.stringify(appData)], {type: "application/json"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = "mastery_pro.json"; a.click();
-}
-
-// --- 通用逻辑 ---
+// --- 通用辅助 ---
 function lockList(lock) {
     isLocked = lock;
     const container = document.getElementById('collapse-container');
-    const status = document.getElementById('lock-status');
     if(lock) {
-        container.classList.add('locked'); status.innerText = "🔒 Locked";
+        container.classList.add('locked'); document.getElementById('lock-status').innerText = "🔒 Locked";
         document.getElementById('today-content').classList.remove('show');
     } else {
-        container.classList.remove('locked'); status.innerText = "🔓 Ready";
-        renderTodayList();
+        container.classList.remove('locked'); document.getElementById('lock-status').innerText = "🔓 Ready";
     }
 }
 function manualToggle() { if(!isLocked) document.getElementById('today-content').classList.toggle('show'); }
@@ -329,10 +342,6 @@ function renderTodayList() {
 function renderQuiz() {
     const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
     document.getElementById('progress-text').innerText = `${currentSession.idx} / ${tasks.length} ${isReviewMode ? '(Review)' : ''}`;
-}
-function finishSession() {
-    document.getElementById('quiz-box').innerHTML = `<h2>Well Done!</h2><button onclick="location.reload()" style="padding:10px 20px; border-radius:10px; border:none; background:var(--main); color:white;">New Plan</button>`;
-    appData.streak++; save();
 }
 function switchTab(tab) {
     document.getElementById('view-plan').className = tab === 'plan' ? '' : 'hidden';
