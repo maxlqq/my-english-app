@@ -12,18 +12,39 @@
         }
         
         body { 
-            font-family: 'PingFang SC', system-ui; background: var(--bg); margin: 0; 
-            overflow: hidden; width: 100%; height: 100vh; position: relative;
-            display: flex; flex-direction: column;
+            font-family: 'PingFang SC', system-ui; 
+            background: var(--bg); 
+            margin: 0; 
+            overflow: hidden; 
+            width: 100%; 
+            height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
             -webkit-touch-callout: none;
         }
 
-        /* 原 Header 逻辑，现在移动到最底部 */
-        .footer-nav { 
+        /* 容器自适应，确保不被底部遮挡 */
+        .container { 
+            flex: 1;
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            box-sizing: border-box;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        /* 原 Header 逻辑移动到此处 */
+        .footer { 
             background: var(--main); color: white; 
             padding: 12px 20px calc(var(--safe-bottom) + 12px); 
             display: flex; justify-content: space-between; align-items: center; 
-            z-index: 1000; flex-shrink: 0;
+            z-index: 1000;
+            flex-shrink: 0;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
         }
 
@@ -31,17 +52,7 @@
         .nav-tab { padding: 6px 15px; border-radius: 18px; font-size: 13px; cursor: pointer; transition: 0.3s; }
         .nav-tab.active { background: white; color: var(--main); font-weight: bold; }
 
-        .container { 
-            flex: 1; max-width: 600px; margin: 0 auto; padding: 15px; 
-            display: flex; flex-direction: column; gap: 15px; box-sizing: border-box;
-            overflow: hidden; width: 100%;
-        }
-
-        .quiz-card { 
-            background: var(--card); border-radius: 25px; padding: 30px 20px; text-align: center; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05); flex: 1; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
-        }
+        .quiz-card { background: var(--card); border-radius: 25px; padding: 30px 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.05); flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
 
         .audio-btn { 
             width: 80px; height: 80px; background: #EBF4FF; border-radius: 50%; 
@@ -58,11 +69,7 @@
         .word-input.correct { color: var(--success); border-bottom-color: var(--success); }
         .word-input.error { color: var(--wrong); border-bottom-color: var(--wrong); }
 
-        .settings-bar { 
-            background: white; border-radius: 15px; padding: 12px 18px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            font-size: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); 
-        }
+        .settings-bar { background: white; border-radius: 15px; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
         
         .collapse-box { background: white; border-radius: 15px; overflow: hidden; transition: 0.3s; }
         .collapse-box.locked { background: #F1F5F9; color: var(--lock); }
@@ -85,7 +92,7 @@
 <div class="container">
     <div id="view-plan" style="display: flex; flex-direction: column; gap: 15px; flex: 1; overflow: hidden;">
         <div class="quiz-card">
-            <div id="cn-hint" style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">点击喇叭开始</div>
+            <div id="cn-hint" style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">Ready</div>
             <div class="audio-btn" onclick="handleMainAudioClick()">🔊</div>
             <input type="text" id="main-input" class="word-input" placeholder="..." autocomplete="off" autocapitalize="off" spellcheck="false">
             <div id="feedback" style="height:30px; font-weight:bold; font-size:20px;"></div>
@@ -120,7 +127,7 @@
     </div>
 </div>
 
-<div class="footer-nav">
+<div class="footer">
     <select id="termSelect" onchange="switchTerm()" style="background:none; border:none; color:white; font-weight:bold; font-size:16px; outline:none;">
         <optgroup label="Grade 3"><option value="3-1">3rd Up</option><option value="3-2">3rd Down</option></optgroup>
         <optgroup label="Grade 4"><option value="4-1">4th Up</option><option value="4-2">4th Down</option></optgroup>
@@ -134,7 +141,7 @@
 </div>
 
 <script>
-// --- 完全保留原始逻辑 ---
+// --- 以下完全还原页面调整版【260412】.html 的所有原生逻辑 ---
 const DEFAULT_DICT = { "3-1": { "Unit 1": [{en:"hello",cn:"你好"}] } };
 let DICT_DB = JSON.parse(localStorage.getItem('JX_CUSTOM_DICT') || JSON.stringify(DEFAULT_DICT));
 let appData = JSON.parse(localStorage.getItem('JX_ENGINE_V95_SONIC') || '{"mastery":{}, "streak":0, "curTerm":"3-1", "unitRange":{}}');
@@ -159,7 +166,8 @@ function handleMainAudioClick() {
 }
 
 function speakWord(text) {
-    new Audio(`https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(text)}&type=2`).play();
+    const audio = new Audio(`https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(text)}&type=2`);
+    audio.play();
 }
 
 document.getElementById('main-input').addEventListener('input', (e) => {
@@ -223,7 +231,7 @@ function refreshSession() {
 
 function renderQuiz() {
     const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
-    document.getElementById('cn-hint').innerText = tasks[currentSession.idx] ? tasks[currentSession.idx].cn : "任务完成";
+    document.getElementById('cn-hint').innerText = tasks[currentSession.idx] ? tasks[currentSession.idx].cn : "Finish";
     renderTodayList();
 }
 
@@ -247,8 +255,8 @@ function renderFullLibrary() {
 }
 
 function checkSessionEnd() {
-    if(wrongQueue.length > 0 && !isReviewMode) { alert("进入错题复习"); isReviewMode = true; currentSession.idx = 0; renderQuiz(); }
-    else { alert("恭喜完成任务！"); location.reload(); }
+    if(wrongQueue.length > 0 && !isReviewMode) { alert("Review Errors"); isReviewMode = true; currentSession.idx = 0; renderQuiz(); }
+    else { alert("Well Done!"); location.reload(); }
 }
 
 function switchTab(tab) {
