@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>English Mastery Engine v5.6</title>
+    <title>English Engine v5.7 - Full Pro</title>
     <style>
         :root { 
             --main: #4A90E2; --success: #27AE60; --wrong: #E74C3C; --bg: #F4F7F9; --card: #FFFFFF;
@@ -24,69 +24,71 @@
             position: relative; z-index: 2000; 
         }
 
-        .nav-tabs { display: flex; background: rgba(0,0,0,0.1); border-radius: 20px; padding: 3px; }
-        .nav-tab { padding: 6px 15px; border-radius: 18px; font-size: 13px; cursor: pointer; }
+        .nav-tabs { display: flex; background: rgba(0,0,0,0.1); border-radius: 20px; padding: 2px; }
+        .nav-tab { padding: 5px 12px; border-radius: 18px; font-size: 12px; cursor: pointer; }
         .nav-tab.active { background: white; color: var(--main); font-weight: bold; }
 
         .container { 
             max-width: 600px; margin: 0 auto; 
             height: calc(100% - var(--header-h) - var(--safe-top));
-            padding: 10px 15px var(--safe-bottom);
+            padding: 8px 15px var(--safe-bottom);
             display: flex; flex-direction: column; box-sizing: border-box;
         }
 
-        #view-plan, #view-all { display: flex; flex-direction: column; height: 100%; gap: 10px; }
+        #view-plan, #view-all { display: flex; flex-direction: column; height: 100%; gap: 8px; }
 
         .quiz-view { 
-            background: var(--card); border-radius: 24px; padding: 15px; 
+            background: var(--card); border-radius: 24px; padding: 10px; 
             text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
             flex: 1; display: flex; flex-direction: column; 
             justify-content: center; align-items: center; order: 1;
         }
 
-        .plan-essentials { flex: 0 0 auto; display: flex; flex-direction: column; gap: 8px; order: 2; padding-bottom: 5px; }
+        .plan-essentials { flex: 0 0 auto; display: flex; flex-direction: column; gap: 6px; order: 2; padding-bottom: 5px; }
+
+        .settings-bar { background: #E2E8F0; padding: 6px 10px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
 
         .sonic-capsule { 
-            background: #EBF4FF; width: 110px; height: 44px; border-radius: 22px; 
-            display: flex; align-items: center; justify-content: center; gap: 4px; 
-            cursor: pointer; border: 2px solid var(--main); transition: 0.2s; 
+            background: #EBF4FF; width: 100px; height: 40px; border-radius: 20px; 
+            display: flex; align-items: center; justify-content: center; gap: 4px; border: 2px solid var(--main);
         }
         .sonic-capsule.playing .wave-bar { animation: wave 0.5s infinite ease-in-out alternate; }
         .wave-bar { width: 3px; background: var(--main); border-radius: 2px; height: 10px; }
-        @keyframes wave { from { height: 6px; } to { height: 20px; } }
+        @keyframes wave { from { height: 6px; } to { height: 18px; } }
         
         .word-input { 
-            border: none; border-bottom: 4px solid #E2E8F0; font-size: 34px; width: 85%; 
-            text-align: center; outline: none; margin: 15px 0; color: var(--main); 
+            border: none; border-bottom: 4px solid #E2E8F0; font-size: 32px; width: 85%; 
+            text-align: center; outline: none; margin: 10px 0; color: var(--main); 
             font-weight: bold; background: transparent; border-radius: 0; -webkit-appearance: none;
         }
-        .word-input:read-only { opacity: 0.7; }
+        .word-input:read-only { opacity: 0.6; }
         .word-input.correct { color: var(--success); border-bottom-color: var(--success); }
         .word-input.error { color: var(--wrong); border-bottom-color: var(--wrong); animation: shake 0.4s; }
         
-        .answer-hint { font-size: 24px; color: var(--wrong); font-weight: bold; margin-top: 5px; background: #FFF5F5; padding: 5px 15px; border-radius: 10px; border: 2px dashed var(--wrong); }
+        .answer-hint { font-size: 22px; color: var(--wrong); font-weight: bold; margin-top: 4px; background: #FFF5F5; padding: 4px 12px; border-radius: 8px; border: 2px dashed var(--wrong); }
         
-        .collapse-box { background: white; border-radius: 15px; overflow: hidden; transition: 0.3s; }
-        .collapse-box.locked { opacity: 0.5; pointer-events: none; filter: grayscale(0.8); }
-        .collapse-header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: bold; color:#475569; }
-        .collapse-content { display: none; max-height: 25vh; overflow-y: auto; border-top: 1px solid #EEE; -webkit-overflow-scrolling: touch; }
+        .collapse-box { background: white; border-radius: 15px; overflow: hidden; }
+        .collapse-box.locked { opacity: 0.5; pointer-events: none; filter: grayscale(1); }
+        .collapse-header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; color:#475569; }
+        .collapse-content { display: none; max-height: 22vh; overflow-y: auto; border-top: 1px solid #EEE; -webkit-overflow-scrolling: touch; }
         .collapse-content.show { display: block; }
         
-        .word-item { padding: 12px 15px; border-bottom: 1px solid #F7FAFC; display: flex; justify-content: space-between; align-items: center; font-size: 15px; }
-        .word-item b { color: var(--main); }
-        
-        .lib-scroll { flex: 1; overflow-y: auto; background: white; border-radius: 20px; -webkit-overflow-scrolling: touch; }
+        .word-item { padding: 10px 15px; border-bottom: 1px solid #F7FAFC; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+        .mastery-tag { font-size: 10px; padding: 2px 6px; border-radius: 8px; background: #F1F5F9; color: #64748B; }
 
+        .btn-mini { padding: 3px 8px; font-size: 10px; background: white; border: 1px solid #CBD5E1; border-radius: 6px; }
+        
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
         .hidden { display: none !important; }
+        .lib-scroll { flex: 1; overflow-y: auto; background: white; border-radius: 20px; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <select id="termSelect" onchange="switchTerm()" style="background:none; border:none; color:white; font-weight:bold; font-size:16px; outline:none;">
-        <option value="3-1">Grade 3 Up</option><option value="3-2">Grade 3 Down</option>
-        <option value="4-1">Grade 4 Up</option><option value="4-2">Grade 4 Down</option>
+        <optgroup label="Grade 3"><option value="3-1">3rd Up</option><option value="3-2">3rd Down</option></optgroup>
+        <optgroup label="Grade 4"><option value="4-1">4th Up</option><option value="4-2">4th Down</option></optgroup>
     </select>
     <div class="nav-tabs">
         <div class="nav-tab active" id="tab-plan" onclick="switchTab('plan')">Plan</div>
@@ -97,26 +99,40 @@
 <div class="container">
     <div id="view-plan">
         <div id="quiz-box" class="quiz-view">
-            <div id="cn-hint" style="font-size: 24px; font-weight: bold; color: #1E293B;">Click to Start</div>
-            <div id="encourage-msg" style="font-size: 13px; color: var(--main); margin: 6px 0; height: 18px;"></div>
+            <div id="cn-hint" style="font-size: 22px; font-weight: bold;">Click Play</div>
+            <div id="encourage-msg" style="font-size: 12px; color: var(--main); height: 16px; margin: 4px 0;"></div>
             <div id="playBtn" class="sonic-capsule" onclick="handlePlayClick()">
                 <div class="wave-bar" style="animation-delay: 0s;"></div><div class="wave-bar" style="animation-delay: 0.1s;"></div>
                 <div class="wave-bar" style="animation-delay: 0.2s;"></div><div class="wave-bar" style="animation-delay: 0.3s;"></div>
             </div>
             <input type="text" id="main-input" class="word-input" placeholder="..." autocomplete="off" autocapitalize="off" spellcheck="false">
-            <div id="hint-box"></div><div id="feedback" style="height:30px; font-weight:bold; font-size:20px;"></div>
+            <div id="hint-box"></div><div id="feedback" style="height:24px; font-weight:bold; font-size:18px;"></div>
         </div>
 
         <div class="plan-essentials">
+            <div class="settings-bar">
+                <div style="display:flex; gap:4px; align-items:center;">
+                    <span>Range:</span>
+                    <select id="startUnit" onchange="changeUnitRange()"></select>
+                    <span>-</span>
+                    <select id="endUnit" onchange="changeUnitRange()"></select>
+                </div>
+                <div style="display: flex; gap: 4px;">
+                    <button class="btn-mini" onclick="backupData()">Exp</button>
+                    <button class="btn-mini" onclick="triggerImport()">Imp</button>
+                    <input type="file" id="importFile" class="hidden" accept=".json" onchange="restoreData(event)">
+                </div>
+            </div>
+
             <div style="display:flex; justify-content:space-between; align-items:center; background:white; padding:10px 15px; border-radius:15px; border-left:5px solid var(--main);">
-                <div><span style="font-size: 11px; color: #94A3B8;">Progress</span><br><b id="progress-text" style="font-size: 16px; color: var(--main);">0 / 0</b></div>
-                <div style="text-align: right;"><span style="font-size: 11px; color: #94A3B8;">Streak</span><br><span style="color: #FF4500; font-weight: bold; font-size: 16px;"><span id="streak-count">0</span> Days</span></div>
+                <div><span style="font-size: 10px; color: #94A3B8;">Progress</span><br><b id="progress-text" style="font-size: 15px; color: var(--main);">0 / 0</b></div>
+                <div style="text-align: right;"><span style="font-size: 10px; color: #94A3B8;">Streak</span><br><span style="color: #FF4500; font-weight: bold; font-size: 15px;"><span id="streak-count">0</span> Days</span></div>
             </div>
 
             <div id="collapse-container" class="collapse-box">
                 <div class="collapse-header" onclick="manualToggle()">
-                    <span>📘 Today's List (Lock during quiz)</span>
-                    <span id="lock-status" style="font-size: 11px; color: #94A3B8;">🔓 Ready</span>
+                    <span>📘 Today's List</span>
+                    <span id="lock-status" style="font-size: 10px; color: var(--main);">🔓 Ready</span>
                 </div>
                 <div id="today-content" class="collapse-content">
                     <div id="today-list"></div>
@@ -127,48 +143,58 @@
 
     <div id="view-all" class="hidden">
         <div class="lib-scroll" id="full-list-container"></div>
-        <div style="padding: 10px 0;">
-             <button onclick="switchTab('plan')" style="width:100%; padding:12px; background:var(--main); color:white; border:none; border-radius:15px; font-weight:bold;">Back to Quiz</button>
-        </div>
+        <button onclick="switchTab('plan')" style="margin-top:8px; padding:12px; background:var(--main); color:white; border:none; border-radius:12px; font-weight:bold;">Back</button>
     </div>
 </div>
 
 <script>
-// 数据保持不变
+// --- 初始化数据结构 ---
 const DEFAULT_DICT = {
-    "3-1": {
-        "U1": [{en:"I",cn:"我"},{en:"am",cn:"是"},{en:"hello",cn:"你好"}],
-        "U2": [{en:"morning",cn:"早晨"},{en:"name",cn:"名字"},{en:"please",cn:"请"}]
-    }
+    "3-1": { "U1": [{en:"I",cn:"我"},{en:"am",cn:"是"},{en:"hello",cn:"你好"}], "U2": [{en:"cat",cn:"猫"}] }
 };
 
 let DICT_DB = JSON.parse(localStorage.getItem('JX_CUSTOM_DICT') || JSON.stringify(DEFAULT_DICT));
-let appData = JSON.parse(localStorage.getItem('JX_ENGINE_V95_SONIC') || '{"streak":0, "curTerm":"3-1", "termSessions":{}}');
+let appData = JSON.parse(localStorage.getItem('JX_ENGINE_V95_SONIC') || '{"mastery":{}, "streak":0, "curTerm":"3-1", "termSessions":{}, "unitRange":{}}');
 
 let currentSession = { tasks: [], idx: 0 };
 let wrongQueue = [], localWrongCount = 0, isReviewMode = false, isLocked = false;
 
 function initApp() {
     document.getElementById('termSelect').value = appData.curTerm;
+    updateUnitSelects();
     loadTermSession(appData.curTerm);
-    updateUI(); renderTodayList(); renderQuiz(); renderFullLibrary();
+    updateUI(); renderTodayList(); renderQuiz();
+}
+
+function updateUnitSelects() {
+    const units = Object.keys(DICT_DB[appData.curTerm] || {});
+    const opts = units.map(u => `<option value="${u}">${u}</option>`).join('');
+    document.getElementById('startUnit').innerHTML = opts;
+    document.getElementById('endUnit').innerHTML = opts;
+    if (appData.unitRange[appData.curTerm]) {
+        document.getElementById('startUnit').value = appData.unitRange[appData.curTerm].start;
+        document.getElementById('endUnit').value = appData.unitRange[appData.curTerm].end;
+    }
 }
 
 function loadTermSession(term) {
     if (!appData.termSessions[term]) {
-        let allPool = [];
-        Object.values(DICT_DB[term] || {}).forEach(u => allPool = allPool.concat(u));
-        appData.termSessions[term] = { tasks: allPool.sort(() => Math.random() - 0.5).slice(0, 15), idx: 0 };
+        const units = Object.keys(DICT_DB[term] || {});
+        const range = appData.unitRange[term] || { start: units[0], end: units[units.length-1] };
+        const sIdx = units.indexOf(range.start), eIdx = units.indexOf(range.end);
+        let pool = [];
+        units.forEach((u, i) => { if(i >= sIdx && i <= eIdx) pool = pool.concat(DICT_DB[term][u]); });
+        appData.termSessions[term] = { tasks: pool.sort(() => Math.random() - 0.5).slice(0, 15), idx: 0 };
     }
     currentSession = appData.termSessions[term];
 }
 
-// --- 自动聚焦与锁定逻辑 ---
+// --- 听写与自动聚焦 ---
 function handlePlayClick() {
     const input = document.getElementById('main-input');
     input.focus(); 
     input.readOnly = true; 
-    lockList(true); // 开始播报即锁定列表
+    lockList(true);
     startDictation();
 }
 
@@ -176,24 +202,23 @@ function startDictation() {
     const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
     if(currentSession.idx >= tasks.length) {
         if(!isReviewMode && wrongQueue.length > 0) {
-            isReviewMode = true; currentSession.idx = 0; alert("Entering Review Mode"); startDictation();
+            isReviewMode = true; currentSession.idx = 0; alert("Review Missed Words"); startDictation();
         } else { finishSession(); }
         return;
     }
     
     const wordObj = tasks[currentSession.idx];
-    const btn = document.getElementById('playBtn');
-    btn.classList.add('playing');
+    document.getElementById('playBtn').classList.add('playing');
     
     const audio = new Audio(`https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(wordObj.en)}&type=2`);
     audio.onended = () => {
-        btn.classList.remove('playing');
+        document.getElementById('playBtn').classList.remove('playing');
         document.getElementById('cn-hint').innerText = wordObj.cn;
         const input = document.getElementById('main-input');
         input.readOnly = false;
-        input.focus(); // 播报结束自动再次聚焦
+        input.focus(); 
     };
-    audio.play();
+    audio.play().catch(() => { /* 处理iOS静音开关限制 */ });
 }
 
 function handleInput(e) {
@@ -202,19 +227,17 @@ function handleInput(e) {
     const target = tasks[currentSession.idx].en.toLowerCase();
     
     if(val === target) {
-        e.target.classList.add('correct'); 
-        document.getElementById('feedback').innerText = "✓ Correct";
-        currentSession.idx++; 
-        localWrongCount = 0;
-
+        e.target.classList.add('correct');
+        // 正确率逻辑：增加掌握度
+        if(!isReviewMode) {
+            appData.mastery[tasks[currentSession.idx].en] = (appData.mastery[tasks[currentSession.idx].en] || 0) + 1;
+        }
+        currentSession.idx++; localWrongCount = 0;
+        
         setTimeout(() => { 
-            e.target.value = "";
-            e.target.classList.remove('correct');
-            document.getElementById('feedback').innerText = "";
+            e.target.value = ""; e.target.classList.remove('correct');
             document.getElementById('hint-box').innerHTML = "";
-            renderQuiz(); 
-            lockList(false); // 每题结束解锁一次，用于更新进度
-            startDictation(); 
+            renderQuiz(); lockList(false); startDictation(); 
         }, 600);
     } else if (val.length >= target.length) {
         triggerError(e.target, target);
@@ -227,38 +250,31 @@ function triggerError(el, target) {
     if(!isReviewMode && !wrongQueue.find(w => w.en === tasks[currentSession.idx].en)) {
         wrongQueue.push(tasks[currentSession.idx]);
     }
-    localWrongCount++; 
-    if(localWrongCount >= 2) { 
-        document.getElementById('hint-box').innerHTML = `<div class="answer-hint">${target}</div>`; 
-    }
+    localWrongCount++;
+    if(localWrongCount >= 2) document.getElementById('hint-box').innerHTML = `<div class="answer-hint">${target}</div>`;
     setTimeout(() => el.classList.remove('error'), 400);
 }
 
-// --- 列表锁定与渲染 ---
+// --- 列表控制 ---
 function lockList(lock) {
     isLocked = lock;
     const container = document.getElementById('collapse-container');
     const status = document.getElementById('lock-status');
     if(lock) {
-        container.classList.add('locked');
-        status.innerText = "🔒 Locked";
+        container.classList.add('locked'); status.innerText = "🔒 Locked";
         document.getElementById('today-content').classList.remove('show');
     } else {
-        container.classList.remove('locked');
-        status.innerText = "🔓 Ready";
-        renderTodayList(); // 刷新勾选状态
+        container.classList.remove('locked'); status.innerText = "🔓 Ready";
+        renderTodayList();
     }
 }
 
-function manualToggle() {
-    if(isLocked) return; 
-    document.getElementById('today-content').classList.toggle('show');
-}
+function manualToggle() { if(!isLocked) document.getElementById('today-content').classList.toggle('show'); }
 
 function renderTodayList() {
     document.getElementById('today-list').innerHTML = currentSession.tasks.map((w, i) => `
         <div class="word-item">
-            <span><b>${w.en}</b> ${w.cn}</span>
+            <span><b>${w.en}</b> <small>${w.cn}</small></span>
             <span>${i < currentSession.idx ? '✅' : '⏳'}</span>
         </div>`).join('');
 }
@@ -266,26 +282,45 @@ function renderTodayList() {
 function renderFullLibrary() {
     let html = "";
     const termData = DICT_DB[appData.curTerm] || {};
-    Object.keys(termData).forEach(unit => {
-        html += `<div style="background:#f1f5f9; padding:8px 15px; font-size:12px; font-weight:bold; color:#64748b;">${unit}</div>`;
-        html += termData[unit].map(w => `
-            <div class="word-item" onclick="speak('${w.en}')">
-                <b>${w.en}</b> <span>${w.cn}</span>
+    Object.keys(termData).forEach(u => {
+        html += `<div style="background:#f1f5f9; padding:8px 15px; font-size:11px; font-weight:bold;">${u}</div>`;
+        html += termData[u].map(w => `
+            <div class="word-item">
+                <div><b>${w.en}</b> <small>${w.cn}</small></div>
+                <div class="mastery-tag">Mastery: ${appData.mastery[w.en] || 0}</div>
             </div>`).join('');
     });
     document.getElementById('full-list-container').innerHTML = html;
 }
 
-function speak(word) {
-    new Audio(`https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=2`).play();
+// --- 数据导入导出 ---
+function backupData() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
+    const dlAnchor = document.createElement('a');
+    dlAnchor.setAttribute("href", dataStr); dlAnchor.setAttribute("download", "mastery_pro_data.json");
+    dlAnchor.click();
 }
 
+function triggerImport() { document.getElementById('importFile').click(); }
+function restoreData(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const imported = JSON.parse(e.target.result);
+            if(imported.mastery) { appData = imported; save(); location.reload(); }
+        } catch(err) { alert("Invalid File"); }
+    };
+    reader.readAsText(file);
+}
+
+// --- 通用 ---
 function switchTab(tab) {
     document.getElementById('view-plan').className = tab === 'plan' ? '' : 'hidden';
     document.getElementById('view-all').className = tab === 'all' ? '' : 'hidden';
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('tab-' + (tab === 'plan' ? 'plan' : 'all')).classList.add('active');
-    if(tab === 'all') renderFullLibrary();
+    document.getElementById('tab-' + (tab==='plan'?'plan':'all')).classList.add('active');
+    if(tab==='all') renderFullLibrary();
 }
 
 function renderQuiz() {
@@ -294,13 +329,17 @@ function renderQuiz() {
 }
 
 function finishSession() {
-    document.getElementById('quiz-box').innerHTML = `<h2 style="color:var(--success)">Well Done!</h2><button onclick="location.reload()" style="padding:12px 25px; border-radius:15px; background:var(--main); color:white; border:none;">New Session</button>`;
-    appData.streak++; save(); lockList(false);
+    document.getElementById('quiz-box').innerHTML = `<h2 style="color:var(--success)">Perfect!</h2><button onclick="location.reload()" style="padding:10px 25px; border-radius:12px; background:var(--main); color:white; border:none;">New Plan</button>`;
+    appData.streak++; save();
 }
 
+function switchTerm() { appData.curTerm = document.getElementById('termSelect').value; appData.termSessions = {}; save(); location.reload(); }
+function changeUnitRange() {
+    appData.unitRange[appData.curTerm] = { start: document.getElementById('startUnit').value, end: document.getElementById('endUnit').value };
+    appData.termSessions = {}; save(); location.reload();
+}
 function save() { localStorage.setItem('JX_ENGINE_V95_SONIC', JSON.stringify(appData)); }
 function updateUI() { document.getElementById('streak-count').innerText = appData.streak; }
-function switchTerm() { appData.curTerm = document.getElementById('termSelect').value; appData.termSessions = {}; location.reload(); }
 
 document.getElementById('main-input').addEventListener('input', handleInput);
 initApp();
