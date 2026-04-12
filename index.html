@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>English Mastery Engine v5.3 - iOS Optimized</title>
+    <title>English Mastery Engine v5.4</title>
     <style>
         :root { 
-            --main: #4A90E2; --success: #27AE60; --wrong: #E74C3C; --bg: #F4F7F9; --card: #FFFFFF; --lock: #94A3B8; --warning: #F1C40F; --critical: #991B1B; 
+            --main: #4A90E2; --success: #27AE60; --wrong: #E74C3C; --bg: #F4F7F9; --card: #FFFFFF; --lock: #94A3B8; --warning: #F1C40F;
             --safe-top: env(safe-area-inset-top);
             --safe-bottom: env(safe-area-inset-bottom);
             --header-h: 54px;
@@ -14,16 +14,11 @@
         
         body { 
             font-family: 'PingFang SC', system-ui; 
-            background: var(--bg); 
-            margin: 0; 
-            /* 核心：禁止全局滚动，适配 iOS 高度 */
-            overflow: hidden; 
-            position: fixed; 
-            width: 100%; 
-            height: 100%;
+            background: var(--bg); margin: 0; 
+            overflow: hidden; position: fixed; 
+            width: 100%; height: 100%;
             overscroll-behavior: none;
             -webkit-touch-callout: none;
-            -webkit-tap-highlight-color: transparent;
         }
 
         .header { 
@@ -31,86 +26,64 @@
             padding: var(--safe-top) 15px 0; 
             height: var(--header-h);
             display: flex; justify-content: space-between; align-items: center; 
-            position: relative;
-            z-index: 2000; 
+            position: relative; z-index: 2000; 
         }
 
         .nav-tabs { display: flex; background: rgba(0,0,0,0.1); border-radius: 20px; padding: 3px; }
-        .nav-tab { padding: 6px 12px; border-radius: 18px; font-size: 13px; cursor: pointer; transition: 0.3s; touch-action: manipulation; }
+        .nav-tab { padding: 6px 15px; border-radius: 18px; font-size: 13px; cursor: pointer; }
         .nav-tab.active { background: white; color: var(--main); font-weight: bold; }
 
         .container { 
-            max-width: 600px; 
-            margin: 0 auto; 
+            max-width: 600px; margin: 0 auto; 
             height: calc(100% - var(--header-h) - var(--safe-top));
             padding: 10px 15px var(--safe-bottom);
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box;
-            overflow: hidden;
+            display: flex; flex-direction: column; box-sizing: border-box;
         }
 
-        #view-plan { 
-            display: flex; 
-            flex-direction: column; 
-            height: 100%;
-            gap: 12px; 
-        }
+        #view-plan { display: flex; flex-direction: column; height: 100%; gap: 10px; }
 
         .quiz-view { 
-            background: var(--card); border-radius: 24px; padding: 20px; 
+            background: var(--card); border-radius: 24px; padding: 15px; 
             text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
-            flex: 1; /* 自动填满剩余空间 */
-            display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; 
-            order: 1; 
-            min-height: 0; /* 允许 flex 子元素缩小 */
+            flex: 1; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; order: 1;
         }
 
-        .plan-essentials { 
-            flex: 0 0 auto; /* 底部固定高度区域 */
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px; 
-            order: 2; 
-            padding-bottom: 5px;
-        }
+        .plan-essentials { flex: 0 0 auto; display: flex; flex-direction: column; gap: 8px; order: 2; padding-bottom: 5px; }
 
-        .settings-bar { background: #E2E8F0; padding: 8px 10px; border-radius: 12px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; font-size: 12px; color: #475569; }
-        .settings-group { display: flex; align-items: center; gap: 4px; }
-        .settings-bar select { border: 1px solid #CBD5E1; border-radius: 6px; padding: 2px 4px; outline: none; background: white; font-size: 12px; }
+        .settings-bar { background: #E2E8F0; padding: 8px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #475569; }
         
-        .plan-summary { background: white; border-radius: 18px; padding: 12px 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-left: 6px solid var(--main); display: flex; justify-content: space-between; align-items: center; }
-        
-        .sonic-capsule { background: #EBF4FF; width: 100px; height: 40px; border-radius: 20px; display: flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer; border: 2px solid var(--main); transition: 0.2s; touch-action: manipulation; }
-        .sonic-capsule:active { transform: scale(0.95); }
-        .wave-bar { width: 3px; background: var(--main); border-radius: 2px; height: 10px; }
+        .sonic-capsule { 
+            background: #EBF4FF; width: 110px; height: 44px; border-radius: 22px; 
+            display: flex; align-items: center; justify-content: center; gap: 4px; 
+            cursor: pointer; border: 2px solid var(--main); transition: 0.2s; 
+            touch-action: manipulation;
+        }
         .sonic-capsule.playing .wave-bar { animation: wave 0.5s infinite ease-in-out alternate; }
+        .wave-bar { width: 3px; background: var(--main); border-radius: 2px; height: 10px; }
         @keyframes wave { from { height: 6px; } to { height: 20px; } }
         
         .word-input { 
-            border: none; border-bottom: 4px solid #E2E8F0; font-size: 32px; width: 90%; text-align: center; outline: none; margin: 15px 0; color: var(--main); font-weight: bold; background: transparent; transition: 0.2s; border-radius: 0; -webkit-appearance: none;
-            -webkit-user-select: text !important;
+            border: none; border-bottom: 4px solid #E2E8F0; font-size: 34px; width: 85%; 
+            text-align: center; outline: none; margin: 15px 0; color: var(--main); 
+            font-weight: bold; background: transparent; border-radius: 0; 
+            -webkit-appearance: none;
         }
         .word-input.correct { color: var(--success); border-bottom-color: var(--success); }
         .word-input.error { color: var(--wrong); border-bottom-color: var(--wrong); animation: shake 0.4s; }
         
-        .answer-hint { font-size: 24px; color: var(--wrong); font-weight: bold; margin-top: 5px; background: #FFF5F5; padding: 4px 15px; border-radius: 10px; border: 2px dashed var(--wrong); }
+        .answer-hint { font-size: 24px; color: var(--wrong); font-weight: bold; margin-top: 5px; background: #FFF5F5; padding: 5px 15px; border-radius: 10px; border: 2px dashed var(--wrong); }
         
-        .collapse-box { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
-        .collapse-header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .collapse-content { display: none; max-height: 25vh; overflow-y: auto; background: #FFF; border-top: 1px solid #EDF2F7; -webkit-overflow-scrolling: touch; }
+        .collapse-box { background: white; border-radius: 15px; overflow: hidden; }
+        .collapse-header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: bold; color:#475569; }
+        .collapse-content { display: none; max-height: 20vh; overflow-y: auto; border-top: 1px solid #EEE; -webkit-overflow-scrolling: touch; }
         .collapse-content.show { display: block; }
         
         .word-item { padding: 10px 15px; border-bottom: 1px solid #F7FAFC; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
-        .btn-mini { padding: 4px 8px; font-size: 11px; background: #FFF; border: 1px solid #CBD5E1; border-radius: 6px; cursor: pointer; color: #475569; font-weight: bold; }
-        .btn-action { background: var(--main); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; font-size: 16px; }
+        .btn-mini { padding: 4px 8px; font-size: 11px; background: #FFF; border: 1px solid #CBD5E1; border-radius: 6px; }
 
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
         .hidden { display: none !important; }
-        
-        /* 隐藏滚动条 */
-        ::-webkit-scrollbar { width: 0; height: 0; }
     </style>
 </head>
 <body>
@@ -124,36 +97,30 @@
     </select>
     <div class="nav-tabs">
         <div class="nav-tab active" id="tab-plan" onclick="switchTab('plan')">Plan</div>
-        <div class="nav-tab" id="tab-all" onclick="switchTab('all')">Library</div>
+        <div class="nav-tab" id="tab-all" onclick="switchTab('all')">Lib</div>
     </div>
 </div>
 
 <div class="container">
     <div id="view-plan">
         <div id="quiz-box" class="quiz-view">
-            <div id="cn-hint" style="font-size: 24px; font-weight: bold; color: #1E293B;">Get Ready!</div>
+            <div id="cn-hint" style="font-size: 24px; font-weight: bold; color: #1E293B;">Click to Start</div>
             <div id="encourage-msg" style="font-size: 13px; color: var(--main); margin: 6px 0; height: 18px;"></div>
             <div id="playBtn" class="sonic-capsule" onclick="handlePlayClick()">
                 <div class="wave-bar" style="animation-delay: 0s;"></div><div class="wave-bar" style="animation-delay: 0.1s;"></div>
                 <div class="wave-bar" style="animation-delay: 0.2s;"></div><div class="wave-bar" style="animation-delay: 0.3s;"></div>
             </div>
-            <input type="text" id="main-input" class="word-input" placeholder="..." autocomplete="off" autocapitalize="off" spellcheck="false" disabled>
+            <input type="text" id="main-input" class="word-input" placeholder="..." autocomplete="off" autocapitalize="off" spellcheck="false">
             <div id="hint-box"></div><div id="feedback" style="height:30px; font-weight:bold; font-size:20px;"></div>
         </div>
 
         <div class="plan-essentials">
             <div class="settings-bar">
-                <div class="settings-group">
-                    <span>Range:</span>
+                <div style="display:flex; gap:5px; align-items:center;">
+                    <span>Unit:</span>
                     <select id="startUnit" onchange="changeUnitRange()"></select>
-                    <span>~</span>
+                    <span>-</span>
                     <select id="endUnit" onchange="changeUnitRange()"></select>
-                </div>
-                <div class="settings-group">
-                    <span>Voice:</span>
-                    <select id="voiceEngineSelect" onchange="changeVoiceEngine()">
-                        <option value="auto">Auto</option><option value="cloud">Cloud</option><option value="system">System</option>
-                    </select>
                 </div>
                 <div style="display: flex; gap: 4px;">
                     <button class="btn-mini" onclick="backupData()">Exp</button>
@@ -163,13 +130,15 @@
             </div>
 
             <div class="plan-summary">
-                <div><span style="font-size: 11px; color: #94A3B8;">Today</span><br><b id="progress-text" style="font-size: 16px; color: var(--main);">0 / 0</b></div>
-                <div style="text-align: right;"><span style="font-size: 11px; color: #94A3B8;">Streak</span><br><span style="color: #FF4500; font-weight: bold; font-size: 16px;"><span id="streak-count">0</span> Days</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; background:white; padding:10px 15px; border-radius:15px; border-left:5px solid var(--main);">
+                    <div><span style="font-size: 11px; color: #94A3B8;">Progress</span><br><b id="progress-text" style="font-size: 16px; color: var(--main);">0 / 0</b></div>
+                    <div style="text-align: right;"><span style="font-size: 11px; color: #94A3B8;">Streak</span><br><span style="color: #FF4500; font-weight: bold; font-size: 16px;"><span id="streak-count">0</span> Days</span></div>
+                </div>
             </div>
 
             <div id="collapse-container" class="collapse-box">
                 <div class="collapse-header" onclick="manualToggle()">
-                    <span style="font-size:13px; font-weight:bold; color:#475569;">📘 Today's List</span>
+                    <span>📘 Today's List</span>
                     <span id="lock-status" style="font-size: 11px; color: #94A3B8;">🔓 Ready</span>
                 </div>
                 <div id="today-content" class="collapse-content">
@@ -185,42 +154,26 @@
 </div>
 
 <script>
-// --- 原有核心逻辑保持 ---
-const PRAISE_LIST = ["Amazing!", "Brilliant!", "Excellent!", "Perfect!", "Well done!"];
 const DEFAULT_DICT = {
     "3-1": {
         "U1": [{en:"I",cn:"我"},{en:"am",cn:"是"},{en:"hello",cn:"你好"}],
         "U2": [{en:"morning",cn:"早晨"},{en:"name",cn:"名字"},{en:"please",cn:"请"}],
         "U3": [{en:"panda",cn:"熊猫"},{en:"cat",cn:"猫"},{en:"dog",cn:"狗"}],
         "U4": [{en:"one",cn:"一"},{en:"two",cn:"二"},{en:"three",cn:"三"}]
-    },
-    "3-2": { "U1": [{en:"apple",cn:"苹果"},{en:"banana",cn:"香蕉"}] },
-    "4-1": { "U1": [{en:"left",cn:"左边"},{en:"right",cn:"右边"}] }
+    }
 };
 
 let DICT_DB = JSON.parse(localStorage.getItem('JX_CUSTOM_DICT') || JSON.stringify(DEFAULT_DICT));
 let appData = JSON.parse(localStorage.getItem('JX_ENGINE_V95_SONIC') || '{"mastery":{}, "lastSeen":{}, "planLimit":15, "lastDate":"", "streak":0, "curTerm":"3-1", "curve":[], "voiceEngine":"auto", "termSessions":{}, "unitRange":{}}');
 
 let currentSession = { tasks: [], idx: 0 };
-let isLocked = false, hasShownHint = false, localWrongCount = 0, isReplayed = false; 
-let wrongQueue = [], audioCache = {};
+let wrongQueue = [], localWrongCount = 0, hasShownHint = false, isReviewMode = false;
 
 function initApp() {
-    const today = new Date().toLocaleDateString();
     document.getElementById('termSelect').value = appData.curTerm;
-    document.getElementById('voiceEngineSelect').value = appData.voiceEngine || 'auto';
-    
-    if(appData.lastDate !== today) {
-        appData.lastDate = today;
-        appData.termSessions = {}; 
-        if(!appData.curve) appData.curve = [];
-        appData.curve.push({date: today, count: 0});
-        if(appData.curve.length > 7) appData.curve.shift();
-    }
-
     updateUnitSelects();
     loadTermSession(appData.curTerm);
-    save(); updateUI(); renderTodayList(); renderQuiz();
+    updateUI(); renderTodayList(); renderQuiz();
 }
 
 function updateUnitSelects() {
@@ -229,13 +182,9 @@ function updateUnitSelects() {
     const endSel = document.getElementById('endUnit');
     const options = units.map(u => `<option value="${u}">${u}</option>`).join('');
     startSel.innerHTML = options; endSel.innerHTML = options;
-
     if (appData.unitRange && appData.unitRange[appData.curTerm]) {
         startSel.value = appData.unitRange[appData.curTerm].start;
         endSel.value = appData.unitRange[appData.curTerm].end;
-    } else {
-        startSel.value = units[0] || "";
-        endSel.value = units[units.length - 1] || "";
     }
 }
 
@@ -247,65 +196,91 @@ function loadTermSession(term) {
         const eIdx = units.indexOf(range.end);
         let allPool = [];
         units.forEach((u, i) => { if(i >= sIdx && i <= eIdx) allPool = allPool.concat(DICT_DB[term][u]); });
-
-        let newTasks = allPool.sort(() => Math.random() - 0.5).slice(0, appData.planLimit);
-        appData.termSessions[term] = { tasks: newTasks, idx: 0 };
+        appData.termSessions[term] = { tasks: allPool.sort(() => Math.random() - 0.5).slice(0, 15), idx: 0 };
     }
     currentSession = appData.termSessions[term];
+    wrongQueue = [];
+    isReviewMode = false;
 }
 
-// --- iOS 自动输入/键盘优化 ---
+// --- 核心优化：错误重听逻辑 + 自动聚焦 ---
 function handlePlayClick() {
     const input = document.getElementById('main-input');
-    // iOS 必须在点击的同一线程中 focus 才能唤起键盘
-    input.disabled = false;
+    // iOS 关键：点击瞬间立即触发 focus 以获取键盘控制权
     input.focus(); 
-    
-    if(!input.disabled) isReplayed = true;
     startDictation();
 }
 
 function startDictation() {
-    if(currentSession.idx >= currentSession.tasks.length) return;
-    lockBox(); 
-    const currentWord = currentSession.tasks[currentSession.idx].en;
+    const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
+    if(currentSession.idx >= tasks.length && !isReviewMode) {
+        if(wrongQueue.length > 0) {
+            isReviewMode = true;
+            currentSession.idx = 0;
+            alert("Starting Review for missed words!");
+            startDictation();
+        } else {
+            finishSession();
+        }
+        return;
+    }
     
-    speakWord(currentWord, () => {
+    const wordObj = isReviewMode ? wrongQueue[currentSession.idx] : currentSession.tasks[currentSession.idx];
+    if(!wordObj) return;
+
+    const btn = document.getElementById('playBtn');
+    btn.classList.add('playing');
+    
+    // 语音播报
+    const audio = new Audio(`https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(wordObj.en)}&type=2`);
+    audio.onended = () => {
+        btn.classList.remove('playing');
+        document.getElementById('cn-hint').innerText = wordObj.cn;
+        // 播报结束，再次强制 focus。因为 handlePlayClick 已授权，此处会自动弹起键盘。
         const input = document.getElementById('main-input');
-        input.disabled = false;
-        document.getElementById('cn-hint').innerText = currentSession.tasks[currentSession.idx].cn;
-        document.getElementById('encourage-msg').innerText = "Spell it now";
-        // 确保键盘持续活跃
-        setTimeout(() => input.focus(), 50);
-    });
+        input.focus(); 
+    };
+    audio.play();
 }
 
 function handleInput(e) {
     const val = e.target.value.trim().toLowerCase();
-    const target = currentSession.tasks[currentSession.idx].en.toLowerCase();
+    const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
+    const target = tasks[currentSession.idx].en.toLowerCase();
+    
     e.target.classList.remove('error');
 
     if(val === target) {
         e.target.classList.add('correct'); 
-        document.getElementById('feedback').innerText = PRAISE_LIST[Math.floor(Math.random()*PRAISE_LIST.length)];
+        document.getElementById('feedback').innerText = "Correct!";
         
         currentSession.idx++; 
-        save();
-        
+        localWrongCount = 0;
+        hasShownHint = false;
+
         setTimeout(() => { 
+            e.target.value = "";
+            e.target.classList.remove('correct');
+            document.getElementById('feedback').innerText = "";
+            document.getElementById('hint-box').innerHTML = "";
             renderQuiz(); 
-            renderTodayList(); 
-            startDictation(); 
-        }, 800);
-        return;
-    }
-    if (val.length >= target.length && val !== target) {
+            startDictation(); // 自动进入下一题
+        }, 600);
+    } else if (val.length >= target.length && val !== target) {
         triggerError(e.target, target);
     }
 }
 
 function triggerError(el, target) {
     el.classList.add('error');
+    const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
+    const currentWord = tasks[currentSession.idx];
+    
+    // 逻辑：如果不在错误队列中，则加入
+    if(!isReviewMode && !wrongQueue.find(w => w.en === currentWord.en)) {
+        wrongQueue.push(currentWord);
+    }
+
     localWrongCount++; 
     if(localWrongCount >= 2) { 
         hasShownHint = true; 
@@ -314,31 +289,31 @@ function triggerError(el, target) {
 }
 
 function renderQuiz() {
-    const input = document.getElementById('main-input');
-    if(currentSession.idx >= currentSession.tasks.length) {
-        document.getElementById('quiz-box').innerHTML = `<div style="text-align:center;"><h2 style="color:var(--success)">Well Done!</h2><button class="btn-action" onclick="location.reload()">Next Session</button></div>`;
-        checkStreak(); return;
+    const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
+    if(currentSession.idx >= tasks.length) {
+        if(!isReviewMode && wrongQueue.length > 0) {
+            // 继续由 startDictation 处理进入 review 模式
+        } else {
+            document.getElementById('cn-hint').innerText = "All Done!";
+            return;
+        }
     }
-    if(input) {
-        document.getElementById('cn-hint').innerText = "???"; 
-        document.getElementById('encourage-msg').innerText = "Ready?";
-        input.value = ""; input.className = "word-input"; input.disabled = true;
-        document.getElementById('hint-box').innerHTML = ""; document.getElementById('feedback').innerText = "";
-        document.getElementById('progress-text').innerText = `${currentSession.idx} / ${currentSession.tasks.length}`;
-        isReplayed = false; localWrongCount = 0; hasShownHint = false;
-    }
+    document.getElementById('progress-text').innerText = `${currentSession.idx} / ${tasks.length} ${isReviewMode ? '(Review)' : ''}`;
 }
 
-// --- 通用功能 ---
-function speakWord(word, onEnd) {
-    const btn = document.getElementById('playBtn');
-    btn.classList.add('playing');
-    const audio = new Audio(`https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=2`);
-    audio.onended = () => { btn.classList.remove('playing'); if(onEnd) onEnd(); };
-    audio.onerror = () => { btn.classList.remove('playing'); if(onEnd) onEnd(); };
-    audio.play().catch(() => { if(onEnd) onEnd(); btn.classList.remove('playing'); });
+function finishSession() {
+    document.getElementById('quiz-box').innerHTML = `<h2>Well Done!</h2><button class="btn-mini" onclick="location.reload()" style="padding:10px 20px;">Finish</button>`;
+    appData.streak++;
+    save();
 }
 
+// --- 基础交互 ---
+function switchTerm() { appData.curTerm = document.getElementById('termSelect').value; appData.termSessions = {}; location.reload(); }
+function changeUnitRange() {
+    appData.unitRange[appData.curTerm] = { start: document.getElementById('startUnit').value, end: document.getElementById('endUnit').value };
+    appData.termSessions = {}; save(); location.reload();
+}
+function manualToggle() { document.getElementById('today-content').classList.toggle('show'); }
 function switchTab(tab) {
     document.getElementById('view-plan').className = tab === 'plan' ? '' : 'hidden';
     document.getElementById('view-all').className = tab === 'all' ? '' : 'hidden';
@@ -346,58 +321,17 @@ function switchTab(tab) {
     document.getElementById('tab-' + tab).classList.add('active');
     if(tab === 'all') renderFullList();
 }
-
 function renderFullList() {
-    const container = document.getElementById('full-list-container');
-    const termDict = DICT_DB[appData.curTerm] || {};
     let html = "";
-    Object.keys(termDict).forEach(unit => {
-        html += `<div style="padding:10px 15px; background:#f1f5f9; font-size:12px; font-weight:bold;">${unit}</div>`;
-        html += termDict[unit].map(w => `<div class="word-item" onclick="speakWord('${w.en}')">
-            <div><b>${w.en}</b> <small>${w.cn}</small></div>
-        </div>`).join('');
+    Object.keys(DICT_DB[appData.curTerm] || {}).forEach(u => {
+        html += `<div style="background:#EEE;padding:5px 15px;font-size:12px;">${u}</div>`;
+        html += DICT_DB[appData.curTerm][u].map(w => `<div class="word-item"><b>${w.en}</b><span>${w.cn}</span></div>`).join('');
     });
-    container.innerHTML = html;
+    document.getElementById('full-list-container').innerHTML = html;
 }
-
-function changeUnitRange() {
-    const start = document.getElementById('startUnit').value;
-    const end = document.getElementById('endUnit').value;
-    if(!appData.unitRange) appData.unitRange = {};
-    appData.unitRange[appData.curTerm] = { start, end };
-    appData.termSessions[appData.curTerm] = null; 
-    save(); loadTermSession(appData.curTerm); renderQuiz(); renderTodayList();
-}
-
-function checkStreak() {
-    const today = new Date().toLocaleDateString();
-    if(appData.lastFinishedDate !== today) { appData.streak++; appData.lastFinishedDate = today; save(); updateUI(); }
-}
-
-function backupData() {
-    const dl = document.createElement('a'); dl.setAttribute("href", "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData)));
-    dl.setAttribute("download", `mastery_backup.json`); dl.click();
-}
-
-function triggerImportAll() { document.getElementById('importFile').click(); }
-function restoreData(event) {
-    const file = event.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => { try { appData = JSON.parse(e.target.result); save(); location.reload(); } catch (err) { alert("Error"); } };
-    reader.readAsText(file);
-}
-
-function lockBox() { isLocked = true; document.getElementById('collapse-container').style.opacity = "0.6"; }
-function unlockBox() { isLocked = false; document.getElementById('collapse-container').style.opacity = "1"; }
-function manualToggle() { document.getElementById('today-content').classList.toggle('show'); }
 function renderTodayList() {
-    document.getElementById('today-list').innerHTML = currentSession.tasks.map((w, idx) => `
-        <div class="word-item">
-            <div><b>${w.en}</b> <small>${w.cn}</small></div><div>${idx < currentSession.idx ? '✅' : '⏳'}</div>
-        </div>`).join('');
+    document.getElementById('today-list').innerHTML = currentSession.tasks.map(w => `<div class="word-item"><b>${w.en}</b><span>${w.cn}</span></div>`).join('');
 }
-function switchTerm() { appData.curTerm = document.getElementById('termSelect').value; updateUnitSelects(); appData.termSessions = {}; loadTermSession(appData.curTerm); save(); renderTodayList(); renderQuiz(); }
-function changeVoiceEngine() { appData.voiceEngine = document.getElementById('voiceEngineSelect').value; save(); }
 function save() { localStorage.setItem('JX_ENGINE_V95_SONIC', JSON.stringify(appData)); }
 function updateUI() { document.getElementById('streak-count').innerText = appData.streak; }
 
