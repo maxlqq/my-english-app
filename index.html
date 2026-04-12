@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>English Mastery Engine v5.5</title>
+    <title>English Mastery Engine v5.6</title>
     <style>
         :root { 
-            --main: #4A90E2; --success: #27AE60; --wrong: #E74C3C; --bg: #F4F7F9; --card: #FFFFFF; --lock: #94A3B8;
+            --main: #4A90E2; --success: #27AE60; --wrong: #E74C3C; --bg: #F4F7F9; --card: #FFFFFF;
             --safe-top: env(safe-area-inset-top);
             --safe-bottom: env(safe-area-inset-bottom);
             --header-h: 54px;
@@ -35,7 +35,7 @@
             display: flex; flex-direction: column; box-sizing: border-box;
         }
 
-        #view-plan { display: flex; flex-direction: column; height: 100%; gap: 10px; }
+        #view-plan, #view-all { display: flex; flex-direction: column; height: 100%; gap: 10px; }
 
         .quiz-view { 
             background: var(--card); border-radius: 24px; padding: 15px; 
@@ -60,21 +60,22 @@
             text-align: center; outline: none; margin: 15px 0; color: var(--main); 
             font-weight: bold; background: transparent; border-radius: 0; -webkit-appearance: none;
         }
-        .word-input:read-only { opacity: 0.5; }
+        .word-input:read-only { opacity: 0.7; }
         .word-input.correct { color: var(--success); border-bottom-color: var(--success); }
         .word-input.error { color: var(--wrong); border-bottom-color: var(--wrong); animation: shake 0.4s; }
         
         .answer-hint { font-size: 24px; color: var(--wrong); font-weight: bold; margin-top: 5px; background: #FFF5F5; padding: 5px 15px; border-radius: 10px; border: 2px dashed var(--wrong); }
         
-        /* 列表锁定样式 */
         .collapse-box { background: white; border-radius: 15px; overflow: hidden; transition: 0.3s; }
         .collapse-box.locked { opacity: 0.5; pointer-events: none; filter: grayscale(0.8); }
         .collapse-header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: bold; color:#475569; }
-        .collapse-content { display: none; max-height: 20vh; overflow-y: auto; border-top: 1px solid #EEE; -webkit-overflow-scrolling: touch; }
+        .collapse-content { display: none; max-height: 25vh; overflow-y: auto; border-top: 1px solid #EEE; -webkit-overflow-scrolling: touch; }
         .collapse-content.show { display: block; }
         
-        .word-item { padding: 10px 15px; border-bottom: 1px solid #F7FAFC; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
-        .btn-mini { padding: 4px 8px; font-size: 11px; background: #FFF; border: 1px solid #CBD5E1; border-radius: 6px; }
+        .word-item { padding: 12px 15px; border-bottom: 1px solid #F7FAFC; display: flex; justify-content: space-between; align-items: center; font-size: 15px; }
+        .word-item b { color: var(--main); }
+        
+        .lib-scroll { flex: 1; overflow-y: auto; background: white; border-radius: 20px; -webkit-overflow-scrolling: touch; }
 
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
         .hidden { display: none !important; }
@@ -114,7 +115,7 @@
 
             <div id="collapse-container" class="collapse-box">
                 <div class="collapse-header" onclick="manualToggle()">
-                    <span>📘 Today's List</span>
+                    <span>📘 Today's List (Lock during quiz)</span>
                     <span id="lock-status" style="font-size: 11px; color: #94A3B8;">🔓 Ready</span>
                 </div>
                 <div id="today-content" class="collapse-content">
@@ -124,12 +125,16 @@
         </div>
     </div>
 
-    <div id="view-all" class="hidden" style="height: 100%; overflow-y: auto;">
-        <div id="full-list-container"></div>
+    <div id="view-all" class="hidden">
+        <div class="lib-scroll" id="full-list-container"></div>
+        <div style="padding: 10px 0;">
+             <button onclick="switchTab('plan')" style="width:100%; padding:12px; background:var(--main); color:white; border:none; border-radius:15px; font-weight:bold;">Back to Quiz</button>
+        </div>
     </div>
 </div>
 
 <script>
+// 数据保持不变
 const DEFAULT_DICT = {
     "3-1": {
         "U1": [{en:"I",cn:"我"},{en:"am",cn:"是"},{en:"hello",cn:"你好"}],
@@ -146,7 +151,7 @@ let wrongQueue = [], localWrongCount = 0, isReviewMode = false, isLocked = false
 function initApp() {
     document.getElementById('termSelect').value = appData.curTerm;
     loadTermSession(appData.curTerm);
-    updateUI(); renderTodayList(); renderQuiz();
+    updateUI(); renderTodayList(); renderQuiz(); renderFullLibrary();
 }
 
 function loadTermSession(term) {
@@ -161,13 +166,9 @@ function loadTermSession(term) {
 // --- 自动聚焦与锁定逻辑 ---
 function handlePlayClick() {
     const input = document.getElementById('main-input');
-    // iOS 关键点 1：用户点击瞬间聚焦，激活键盘
     input.focus(); 
-    // 设为只读以防止播报时用户输入导致异常，但保持 focus 状态键盘不收起
     input.readOnly = true; 
-    
-    // 锁定 Today's List
-    lockList(true);
+    lockList(true); // 开始播报即锁定列表
     startDictation();
 }
 
@@ -175,7 +176,7 @@ function startDictation() {
     const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
     if(currentSession.idx >= tasks.length) {
         if(!isReviewMode && wrongQueue.length > 0) {
-            isReviewMode = true; currentSession.idx = 0; alert("Review Missed Words"); startDictation();
+            isReviewMode = true; currentSession.idx = 0; alert("Entering Review Mode"); startDictation();
         } else { finishSession(); }
         return;
     }
@@ -188,10 +189,9 @@ function startDictation() {
     audio.onended = () => {
         btn.classList.remove('playing');
         document.getElementById('cn-hint').innerText = wordObj.cn;
-        // iOS 关键点 2：播报结束，恢复可写，此时键盘已在活动状态
         const input = document.getElementById('main-input');
         input.readOnly = false;
-        input.focus(); 
+        input.focus(); // 播报结束自动再次聚焦
     };
     audio.play();
 }
@@ -201,11 +201,9 @@ function handleInput(e) {
     const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
     const target = tasks[currentSession.idx].en.toLowerCase();
     
-    e.target.classList.remove('error');
-
     if(val === target) {
         e.target.classList.add('correct'); 
-        document.getElementById('feedback').innerText = "Correct!";
+        document.getElementById('feedback').innerText = "✓ Correct";
         currentSession.idx++; 
         localWrongCount = 0;
 
@@ -215,8 +213,7 @@ function handleInput(e) {
             document.getElementById('feedback').innerText = "";
             document.getElementById('hint-box').innerHTML = "";
             renderQuiz(); 
-            // 解锁一次以便更新显示，下一题开始时会重新锁定
-            lockList(false); 
+            lockList(false); // 每题结束解锁一次，用于更新进度
             startDictation(); 
         }, 600);
     } else if (val.length >= target.length) {
@@ -234,8 +231,10 @@ function triggerError(el, target) {
     if(localWrongCount >= 2) { 
         document.getElementById('hint-box').innerHTML = `<div class="answer-hint">${target}</div>`; 
     }
+    setTimeout(() => el.classList.remove('error'), 400);
 }
 
+// --- 列表锁定与渲染 ---
 function lockList(lock) {
     isLocked = lock;
     const container = document.getElementById('collapse-container');
@@ -247,34 +246,56 @@ function lockList(lock) {
     } else {
         container.classList.remove('locked');
         status.innerText = "🔓 Ready";
+        renderTodayList(); // 刷新勾选状态
     }
 }
 
 function manualToggle() {
-    if(isLocked) return; // 锁定状态下点击无效
+    if(isLocked) return; 
     document.getElementById('today-content').classList.toggle('show');
 }
 
-// --- 基础逻辑 ---
-function renderQuiz() {
-    const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
-    document.getElementById('progress-text').innerText = `${currentSession.idx} / ${tasks.length} ${isReviewMode ? '(Review)' : ''}`;
+function renderTodayList() {
+    document.getElementById('today-list').innerHTML = currentSession.tasks.map((w, i) => `
+        <div class="word-item">
+            <span><b>${w.en}</b> ${w.cn}</span>
+            <span>${i < currentSession.idx ? '✅' : '⏳'}</span>
+        </div>`).join('');
 }
 
-function finishSession() {
-    document.getElementById('quiz-box').innerHTML = `<h2>Perfect!</h2><button onclick="location.reload()" style="padding:10px 20px;">Finish</button>`;
-    appData.streak++; save(); lockList(false);
+function renderFullLibrary() {
+    let html = "";
+    const termData = DICT_DB[appData.curTerm] || {};
+    Object.keys(termData).forEach(unit => {
+        html += `<div style="background:#f1f5f9; padding:8px 15px; font-size:12px; font-weight:bold; color:#64748b;">${unit}</div>`;
+        html += termData[unit].map(w => `
+            <div class="word-item" onclick="speak('${w.en}')">
+                <b>${w.en}</b> <span>${w.cn}</span>
+            </div>`).join('');
+    });
+    document.getElementById('full-list-container').innerHTML = html;
+}
+
+function speak(word) {
+    new Audio(`https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=2`).play();
 }
 
 function switchTab(tab) {
     document.getElementById('view-plan').className = tab === 'plan' ? '' : 'hidden';
     document.getElementById('view-all').className = tab === 'all' ? '' : 'hidden';
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('tab-' + tab).classList.add('active');
+    document.getElementById('tab-' + (tab === 'plan' ? 'plan' : 'all')).classList.add('active');
+    if(tab === 'all') renderFullLibrary();
 }
 
-function renderTodayList() {
-    document.getElementById('today-list').innerHTML = currentSession.tasks.map(w => `<div class="word-item"><b>${w.en}</b><span>${w.cn}</span></div>`).join('');
+function renderQuiz() {
+    const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
+    document.getElementById('progress-text').innerText = `${currentSession.idx} / ${tasks.length} ${isReviewMode ? '(Review)' : ''}`;
+}
+
+function finishSession() {
+    document.getElementById('quiz-box').innerHTML = `<h2 style="color:var(--success)">Well Done!</h2><button onclick="location.reload()" style="padding:12px 25px; border-radius:15px; background:var(--main); color:white; border:none;">New Session</button>`;
+    appData.streak++; save(); lockList(false);
 }
 
 function save() { localStorage.setItem('JX_ENGINE_V95_SONIC', JSON.stringify(appData)); }
