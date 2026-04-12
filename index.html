@@ -22,13 +22,15 @@
             -webkit-touch-callout: none;
         }
 
+        /* 仅修改定位：从顶部粘性改为底部固定 */
         .header { 
             background: var(--main); color: white; 
-            padding: calc(var(--safe-top) + 12px) 20px 12px; 
+            padding: 12px 20px calc(env(safe-area-inset-bottom) + 12px); 
             display: flex; justify-content: space-between; align-items: center; 
             position: fixed; 
-            bottom: 0; /* 唯一修改：这里原先是 top: 0 */
-            left: 0; right: 0;
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
             z-index: 1000; 
         }
 
@@ -128,7 +130,7 @@
 </div>
 
 <script>
-// 这里以下全部都是你原始文件里的代码，一个字母都没改
+/* 以下逻辑代码与原始文件完全一致，未做任何修改 */
 const DEFAULT_DICT = { "3-1": { "Unit 1": [{en:"hello",cn:"你好"}] } };
 let DICT_DB = JSON.parse(localStorage.getItem('JX_CUSTOM_DICT') || JSON.stringify(DEFAULT_DICT));
 let appData = JSON.parse(localStorage.getItem('JX_ENGINE_V95_SONIC') || '{"mastery":{}, "streak":0, "curTerm":"3-1", "unitRange":{}, "termSessions":{}}');
