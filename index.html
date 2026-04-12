@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>小泽Pro 2.0 - 3-6年级全周期版</title>
+    <title>小泽Pro v2.1 - 修复版</title>
     <style>
         :root { 
             --main: #4A90E2; --success: #27AE60; --wrong: #E74C3C; --bg: #F4F7F9; --card: #FFFFFF;
@@ -45,31 +45,27 @@
             background: #EBF4FF; width: 100px; height: 40px; border-radius: 20px; 
             display: flex; align-items: center; justify-content: center; gap: 4px; border: 2px solid var(--main);
         }
-        .sonic-capsule.playing .wave-bar { animation: wave 0.5s infinite ease-in-out alternate; }
-        .wave-bar { width: 3px; background: var(--main); border-radius: 2px; height: 10px; }
-        @keyframes wave { from { height: 6px; } to { height: 18px; } }
-        
+        .sonic-capsule.playing { background: #BEE3F8; }
+
         .word-input { 
             border: none; border-bottom: 4px solid #E2E8F0; font-size: 32px; width: 85%; 
             text-align: center; outline: none; margin: 10px 0; color: var(--main); font-weight: bold; background: transparent;
         }
         .word-input.correct { color: var(--success); border-bottom-color: var(--success); }
-        .word-input.error { color: var(--wrong); border-bottom-color: var(--wrong); animation: shake 0.4s; }
+        .word-input.error { color: var(--wrong); border-bottom-color: var(--wrong); }
         
-        .answer-hint { font-size: 24px; color: var(--wrong); font-weight: bold; background: #FFF5F5; padding: 5px 15px; border-radius: 10px; border: 2px dashed var(--wrong); margin-top: 10px; }
+        /* 锁定状态样式 */
+        .collapse-box { background: white; border-radius: 15px; overflow: hidden; transition: 0.3s; }
+        .collapse-box.locked { opacity: 0.5; background: #EDF2F7; }
+        .collapse-box.locked * { cursor: not-allowed !important; }
         
-        .collapse-box { background: white; border-radius: 15px; overflow: hidden; }
-        .collapse-box.locked { opacity: 0.5; pointer-events: none; }
-        .collapse-header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; }
+        .collapse-header { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; }
         .collapse-content { display: none; max-height: 25vh; overflow-y: auto; border-top: 1px solid #EEE; }
         .collapse-content.show { display: block; }
         
         .word-item { padding: 12px 15px; border-bottom: 1px solid #F7FAFC; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
-        .mastery-tag { font-size: 10px; color: var(--main); font-weight: bold; }
-
         .lib-scroll { flex: 1; overflow-y: auto; background: white; border-radius: 20px; }
         
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
         .hidden { display: none !important; }
         .btn-mini { padding: 4px 8px; font-size: 10px; background: white; border: 1px solid #CBD5E1; border-radius: 6px; font-weight: bold; }
     </style>
@@ -94,7 +90,7 @@
         <div id="quiz-box" class="quiz-view">
             <div id="cn-hint" style="font-size: 24px; font-weight: bold;">Ready?</div>
             <div id="playBtn" class="sonic-capsule" onclick="handlePlayClick()">
-                <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                <div style="font-size: 20px;">🔊</div>
             </div>
             <input type="text" id="main-input" class="word-input" placeholder="..." autocomplete="off" autocapitalize="off" spellcheck="false" disabled>
             <div id="hint-box"></div><div id="feedback" style="height:24px; font-weight:bold;"></div>
@@ -103,15 +99,15 @@
         <div class="plan-essentials">
             <div class="settings-bar">
                 <div style="display:flex; gap:5px; align-items:center;">
-                    <span>Range:</span>
+                    <span>Unit:</span>
                     <select id="startUnit" onchange="changeUnitRange()"></select>
                     <span>-</span>
                     <select id="endUnit" onchange="changeUnitRange()"></select>
                 </div>
                 <div style="display: flex; gap: 4px;">
-                    <button class="btn-mini" onclick="backupUserData()">Backup</button>
-                    <button class="btn-mini" onclick="document.getElementById('importFile').click()">Restore</button>
-                    <input type="file" id="importFile" class="hidden" accept=".json" onchange="unifiedImport(event)">
+                    <button class="btn-mini" onclick="exportWordLibrary()">Exp Lib</button>
+                    <button class="btn-mini" onclick="document.getElementById('file-input').click()">Imp</button>
+                    <input type="file" id="file-input" class="hidden" accept=".json" onchange="handleImport(event)">
                 </div>
             </div>
 
@@ -122,7 +118,7 @@
 
             <div id="collapse-container" class="collapse-box">
                 <div class="collapse-header" onclick="manualToggle()">
-                    <span>📘 Today's List</span>
+                    <span>📘 Today's List (Quiz Locked)</span>
                     <span id="lock-status" style="font-size: 10px; color: #94A3B8;">🔓 Ready</span>
                 </div>
                 <div id="today-content" class="collapse-content"><div id="today-list"></div></div>
@@ -131,29 +127,22 @@
     </div>
 
     <div id="view-all" class="hidden">
-        <div class="settings-bar" style="margin-bottom:8px;">
-            <span>Library Management:</span>
-            <div style="display: flex; gap:4px;">
-                <button class="btn-mini" onclick="exportWordLibrary()">Exp Lib</button>
-                <button class="btn-mini" onclick="document.getElementById('importFile').click()">Imp Lib</button>
-            </div>
-        </div>
         <div class="lib-scroll" id="full-list-container"></div>
-        <button onclick="switchTab('plan')" style="margin-top:10px; padding:12px; background:var(--main); color:white; border:none; border-radius:12px; font-weight:bold;">Return to Plan</button>
+        <button onclick="switchTab('plan')" style="margin-top:10px; padding:12px; background:var(--main); color:white; border:none; border-radius:12px; font-weight:bold;">Back</button>
     </div>
 </div>
 
 <script>
-// --- 完整 3-6 年级数据框架 ---
+// --- 核心恢复代码 ---
 const DEFAULT_DICT = {
     "3-1": { "U1": [{en:"I",cn:"我"},{en:"am",cn:"是"}], "U2": [{en:"hello",cn:"你好"}] },
-    "3-2": { "U1": [{en:"boy",cn:"男孩"}], "U2": [{en:"girl",cn:"女孩"}] },
-    "4-1": { "U1": [{en:"school",cn:"学校"}], "U2": [{en:"teacher",cn:"老师"}] },
-    "4-2": { "U1": [{en:"music",cn:"音乐"}], "U2": [{en:"art",cn:"美术"}] },
-    "5-1": { "U1": [{en:"young",cn:"年轻的"}], "U2": [{en:"funny",cn:"有趣的"}] },
-    "5-2": { "U1": [{en:"eat",cn:"吃"}], "U2": [{en:"drink",cn:"喝"}] },
-    "6-1": { "U1": [{en:"science",cn:"科学"}], "U2": [{en:"museum",cn:"博物馆"}] },
-    "6-2": { "U1": [{en:"tall",cn:"高的"}], "U2": [{en:"short",cn:"矮的"}] }
+    "3-2": { "U1": [{en:"boy",cn:"男孩"}] },
+    "4-1": { "U1": [{en:"school",cn:"学校"}] },
+    "4-2": { "U1": [{en:"music",cn:"音乐"}] },
+    "5-1": { "U1": [{en:"young",cn:"年轻的"}] },
+    "5-2": { "U1": [{en:"eat",cn:"吃"}] },
+    "6-1": { "U1": [{en:"science",cn:"科学"}] },
+    "6-2": { "U1": [{en:"tall",cn:"高的"}] }
 };
 
 let DICT_DB = JSON.parse(localStorage.getItem('JX_CUSTOM_DICT') || JSON.stringify(DEFAULT_DICT));
@@ -169,7 +158,130 @@ function initApp() {
     updateUI(); renderTodayList(); renderQuiz();
 }
 
-// 自动生成单元选项
+// 修复：灵活导入逻辑
+function handleImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const data = JSON.parse(e.target.result);
+            // 判断是否为词库：包含任一学期键名
+            if (data["3-1"] || data["5-1"] || data["6-1"]) {
+                DICT_DB = data;
+                localStorage.setItem('JX_CUSTOM_DICT', JSON.stringify(DICT_DB));
+                alert("词库导入成功！");
+            } 
+            // 判断是否为进度：包含掌握度对象
+            else if (data.mastery) {
+                appData = data;
+                save();
+                alert("学习进度恢复成功！");
+            } else {
+                alert("无效的 JSON 文件");
+            }
+            location.reload();
+        } catch(err) { alert("读取失败：" + err.message); }
+    };
+    reader.readAsText(file);
+}
+
+// 导出词库功能
+function exportWordLibrary() {
+    const blob = new Blob([JSON.stringify(DICT_DB, null, 2)], {type: "application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = "My_Library.json"; a.click();
+}
+
+// 修复：锁定逻辑
+function lockList(lock) {
+    isLocked = lock;
+    const box = document.getElementById('collapse-container');
+    const status = document.getElementById('lock-status');
+    const content = document.getElementById('today-content');
+    
+    if(lock) {
+        box.classList.add('locked');
+        status.innerText = "🔒 Locked";
+        content.classList.remove('show'); // 强制收起
+    } else {
+        box.classList.remove('locked');
+        status.innerText = "🔓 Ready";
+        renderTodayList();
+    }
+}
+
+function manualToggle() {
+    if(isLocked) return; // 关键：锁定状态下点击无响应
+    document.getElementById('today-content').classList.toggle('show');
+}
+
+function handlePlayClick() {
+    const input = document.getElementById('main-input');
+    input.disabled = false;
+    input.focus();
+    lockList(true); // 播放即锁定
+    startDictation();
+}
+
+function startDictation() {
+    const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
+    if(currentSession.idx >= tasks.length) {
+        if(!isReviewMode && wrongQueue.length > 0) {
+            isReviewMode = true; currentSession.idx = 0; alert("进入错题复习"); startDictation();
+        } else { finishSession(); }
+        return;
+    }
+    const wordObj = tasks[currentSession.idx];
+    const btn = document.getElementById('playBtn');
+    btn.classList.add('playing');
+    
+    const audio = new Audio(`https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(wordObj.en)}&type=2`);
+    audio.onended = () => {
+        btn.classList.remove('playing');
+        document.getElementById('cn-hint').innerText = wordObj.cn;
+        const input = document.getElementById('main-input');
+        input.disabled = false;
+        input.focus(); 
+    };
+    audio.play();
+}
+
+function handleInput(e) {
+    const val = e.target.value.trim().toLowerCase();
+    const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
+    const target = tasks[currentSession.idx].en.toLowerCase();
+    
+    if(val === target) {
+        e.target.classList.add('correct');
+        // 正确即更新掌握度
+        if(!isReviewMode && localWrongCount === 0) {
+            appData.mastery[tasks[currentSession.idx].en] = (appData.mastery[tasks[currentSession.idx].en] || 0) + 1;
+        }
+        currentSession.idx++; localWrongCount = 0;
+        setTimeout(() => { 
+            e.target.value = ""; e.target.classList.remove('correct');
+            document.getElementById('hint-box').innerHTML = "";
+            renderQuiz(); 
+            lockList(false); // 解锁
+            startDictation(); 
+        }, 600);
+    } else if (val.length >= target.length) {
+        triggerError(e.target, target);
+    }
+}
+
+// --- 其余逻辑补全 ---
+function triggerError(el, target) {
+    el.classList.add('error');
+    if(!isReviewMode && !wrongQueue.find(w => w.en === currentSession.tasks[currentSession.idx].en)) {
+        wrongQueue.push(currentSession.tasks[currentSession.idx]);
+    }
+    localWrongCount++;
+    if(localWrongCount >= 2) document.getElementById('hint-box').innerHTML = `<div class="answer-hint">${target}</div>`;
+    setTimeout(() => el.classList.remove('error'), 400);
+}
+
 function updateUnitSelects() {
     const units = Object.keys(DICT_DB[appData.curTerm] || {});
     const opts = units.map(u => `<option value="${u}">${u}</option>`).join('');
@@ -194,100 +306,14 @@ function loadTermSession(term) {
     currentSession = appData.termSessions[term];
 }
 
-// 听写与聚焦
-function handlePlayClick() {
-    const input = document.getElementById('main-input');
-    input.disabled = false; input.focus();
-    lockList(true);
-    startDictation();
+function renderTodayList() {
+    document.getElementById('today-list').innerHTML = currentSession.tasks.map((w, i) => `
+        <div class="word-item">
+            <span><b>${w.en}</b> <small>${w.cn}</small></span>
+            <span>${i < currentSession.idx ? '✅' : '⏳'}</span>
+        </div>`).join('');
 }
 
-function startDictation() {
-    const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
-    if(currentSession.idx >= tasks.length) {
-        if(!isReviewMode && wrongQueue.length > 0) {
-            isReviewMode = true; currentSession.idx = 0; alert("Review Errors"); startDictation();
-        } else { finishSession(); }
-        return;
-    }
-    const wordObj = tasks[currentSession.idx];
-    document.getElementById('playBtn').classList.add('playing');
-    const audio = new Audio(`https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(wordObj.en)}&type=2`);
-    audio.onended = () => {
-        document.getElementById('playBtn').classList.remove('playing');
-        document.getElementById('cn-hint').innerText = wordObj.cn;
-        const input = document.getElementById('main-input');
-        input.disabled = false; input.focus(); 
-    };
-    audio.play();
-}
-
-function handleInput(e) {
-    const val = e.target.value.trim().toLowerCase();
-    const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
-    const target = tasks[currentSession.idx].en.toLowerCase();
-    
-    if(val === target) {
-        e.target.classList.add('correct');
-        if(!isReviewMode && localWrongCount === 0) {
-            appData.mastery[tasks[currentSession.idx].en] = (appData.mastery[tasks[currentSession.idx].en] || 0) + 1;
-        }
-        currentSession.idx++; localWrongCount = 0;
-        setTimeout(() => { 
-            e.target.value = ""; e.target.classList.remove('correct');
-            document.getElementById('hint-box').innerHTML = "";
-            renderQuiz(); lockList(false); startDictation(); 
-        }, 600);
-    } else if (val.length >= target.length) {
-        triggerError(e.target, target);
-    }
-}
-
-function triggerError(el, target) {
-    el.classList.add('error');
-    if(!isReviewMode && !wrongQueue.find(w => w.en === currentSession.tasks[currentSession.idx].en)) {
-        wrongQueue.push(currentSession.tasks[currentSession.idx]);
-    }
-    localWrongCount++;
-    if(localWrongCount >= 2) document.getElementById('hint-box').innerHTML = `<div class="answer-hint">${target}</div>`;
-    setTimeout(() => el.classList.remove('error'), 400);
-}
-
-// 导出单词库
-function exportWordLibrary() {
-    const blob = new Blob([JSON.stringify(DICT_DB, null, 2)], {type: "application/json"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = "小泽_单词库.json"; a.click();
-}
-
-// 导出进度备份
-function backupUserData() {
-    const blob = new Blob([JSON.stringify(appData)], {type: "application/json"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = "用户备份.json"; a.click();
-}
-
-// 统一导入逻辑
-function unifiedImport(event) {
-    const file = event.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        try {
-            const data = JSON.parse(e.target.result);
-            if (data["3-1"]) { // 单词库特征
-                DICT_DB = data; localStorage.setItem('JX_CUSTOM_DICT', JSON.stringify(DICT_DB));
-                alert("Word Library Updated!");
-            } else if (data.mastery) { // 用户备份特征
-                appData = data; save();
-                alert("Progress Restored!");
-            }
-            location.reload();
-        } catch(err) { alert("Import Failed: Invalid JSON"); }
-    };
-    reader.readAsText(file);
-}
-
-// 掌握度显示
 function renderFullLibrary() {
     let html = "";
     const termData = DICT_DB[appData.curTerm] || {};
@@ -296,39 +322,12 @@ function renderFullLibrary() {
         html += termData[u].map(w => `
             <div class="word-item">
                 <div><b>${w.en}</b> <small>${w.cn}</small></div>
-                <div class="mastery-tag">M:${appData.mastery[w.en] || 0}</div>
+                <div style="color:var(--main); font-size:11px;">M:${appData.mastery[w.en]||0}</div>
             </div>`).join('');
     });
     document.getElementById('full-list-container').innerHTML = html;
 }
 
-// 通用辅助
-function lockList(lock) {
-    isLocked = lock;
-    const container = document.getElementById('collapse-container');
-    if(lock) {
-        container.classList.add('locked'); document.getElementById('lock-status').innerText = "🔒 Locked";
-        document.getElementById('today-content').classList.remove('show');
-    } else {
-        container.classList.remove('locked'); document.getElementById('lock-status').innerText = "🔓 Ready";
-    }
-}
-function manualToggle() { if(!isLocked) document.getElementById('today-content').classList.toggle('show'); }
-function renderTodayList() {
-    document.getElementById('today-list').innerHTML = currentSession.tasks.map((w, i) => `
-        <div class="word-item">
-            <span><b>${w.en}</b> <small>${w.cn}</small></span>
-            <span>${i < currentSession.idx ? '✅' : '⏳'}</span>
-        </div>`).join('');
-}
-function renderQuiz() {
-    const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
-    document.getElementById('progress-text').innerText = `${currentSession.idx} / ${tasks.length} ${isReviewMode ? '(Review)' : ''}`;
-}
-function finishSession() {
-    document.getElementById('quiz-box').innerHTML = `<h2>Well Done!</h2><button onclick="location.reload()" style="padding:10px 20px; border-radius:10px; border:none; background:var(--main); color:white;">New Plan</button>`;
-    appData.streak++; save();
-}
 function switchTab(tab) {
     document.getElementById('view-plan').className = tab === 'plan' ? '' : 'hidden';
     document.getElementById('view-all').className = tab === 'all' ? '' : 'hidden';
@@ -336,6 +335,17 @@ function switchTab(tab) {
     document.getElementById('tab-' + (tab==='plan'?'plan':'all')).classList.add('active');
     if(tab==='all') renderFullLibrary();
 }
+
+function finishSession() {
+    document.getElementById('quiz-box').innerHTML = `<h2>真棒！</h2><button onclick="location.reload()" style="padding:10px 20px; border-radius:10px; border:none; background:var(--main); color:white;">开始新计划</button>`;
+    appData.streak++; save();
+}
+
+function renderQuiz() {
+    const tasks = isReviewMode ? wrongQueue : currentSession.tasks;
+    document.getElementById('progress-text').innerText = `${currentSession.idx} / ${tasks.length} ${isReviewMode ? '(Review)' : ''}`;
+}
+
 function switchTerm() { appData.curTerm = document.getElementById('termSelect').value; appData.termSessions = {}; save(); location.reload(); }
 function changeUnitRange() {
     appData.unitRange[appData.curTerm] = { start: document.getElementById('startUnit').value, end: document.getElementById('endUnit').value };
