@@ -22,33 +22,46 @@
             -webkit-touch-callout: none;
         }
 
-        .header { 
-            background: var(--main); color: white; 
-            padding: calc(var(--safe-top) + 12px) 20px 12px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            position: fixed; 
-            top: 0; left: 0; right: 0;
-            z-index: 2000; 
-        }
-
+        /* 修改 .header 样式，使其固定在底部 */
+.header { 
+    background: var(--main); 
+    color: white; 
+    /* 调整 Padding：取消顶部安全区，增加底部安全区留白，适配 iOS 全面屏 */
+    padding: 12px 20px calc(env(safe-area-inset-bottom) + 12px); 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    position: fixed; 
+    bottom: 0;         /* 关键：修改为 0 */
+    top: auto;        /* 关键：取消顶部固定 */
+    left: 0; 
+    right: 0;
+    z-index: 2000; 
+    box-shadow: 0 -4px 15px rgba(0,0,0,0.1); /* 增加向上的阴影，更有质感 */
+    border-radius: 20px 20px 0 0;           /* 可选：顶部加圆角 */
+}
         .nav-tabs { display: flex; background: rgba(0,0,0,0.1); border-radius: 20px; padding: 3px; }
         .nav-tab { padding: 6px 15px; border-radius: 18px; font-size: 13px; cursor: pointer; transition: 0.3s; }
         .nav-tab.active { background: white; color: var(--main); font-weight: bold; }
 
-        .container { 
-            max-width: 600px; 
-            margin: 0 auto; 
-            position: absolute;
-            top: calc(54px + var(--safe-top)); 
-            bottom: 0; left: 0; right: 0;
-            padding: 10px 15px;
-            overflow-y: auto; 
-            -webkit-overflow-scrolling: touch;
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box;
-        }
-
+       /* 修改 .container 样式，使其避开底部的栏 */
+.container { 
+    max-width: 600px; 
+    margin: 0 auto; 
+    position: absolute;
+    /* 顶部现在可以直接顶到屏幕上方（或保留少许安全边距） */
+    top: env(safe-area-inset-top); 
+    /* 关键：为底部的导航栏预留出足够的空间 (约 65px + 安全距离) */
+    bottom: calc(65px + env(safe-area-inset-bottom)); 
+    left: 0; 
+    right: 0;
+    padding: 10px 15px;
+    overflow-y: auto; 
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
         #view-plan { 
             display: flex; 
             flex-direction: column; 
@@ -128,20 +141,6 @@
     </style>
 </head>
 <body>
-
-<div class="header">
-    <select id="termSelect" onchange="switchTerm()" style="background:none; border:none; color:white; font-weight:bold; font-size:16px; outline:none;">
-        <optgroup label="Grade 3"><option value="3-1">3rd Up</option><option value="3-2">3rd Down</option></optgroup>
-        <optgroup label="Grade 4"><option value="4-1">4th Up</option><option value="4-2">4th Down</option></optgroup>
-        <optgroup label="Grade 5"><option value="5-1">5th Up</option><option value="5-2">5th Down</option></optgroup>
-        <optgroup label="Grade 6"><option value="6-1">6th Up</option><option value="6-2">6th Down</option></optgroup>
-    </select>
-    <div class="nav-tabs">
-        <div class="nav-tab active" id="tab-plan" onclick="switchTab('plan')">Daily Plan</div>
-        <div class="nav-tab" id="tab-all" onclick="switchTab('all')">Word List</div>
-    </div>
-</div>
-
 <div class="container">
     <div id="view-plan">
         <div id="quiz-box" class="quiz-view">
@@ -154,6 +153,18 @@
             <input type="text" id="main-input" class="word-input" placeholder="..." autocomplete="off" autocapitalize="off" spellcheck="false" disabled>
             <div id="hint-box"></div><div id="feedback" style="height:30px; font-weight:bold; font-size:22px;"></div>
         </div>
+<div class="header">
+    <select id="termSelect" onchange="switchTerm()" style="background:none; border:none; color:white; font-weight:bold; font-size:16px; outline:none;">
+        <optgroup label="Grade 3"><option value="3-1">3rd Up</option><option value="3-2">3rd Down</option></optgroup>
+        <optgroup label="Grade 4"><option value="4-1">4th Up</option><option value="4-2">4th Down</option></optgroup>
+        <optgroup label="Grade 5"><option value="5-1">5th Up</option><option value="5-2">5th Down</option></optgroup>
+        <optgroup label="Grade 6"><option value="6-1">6th Up</option><option value="6-2">6th Down</option></optgroup>
+    </select>
+    <div class="nav-tabs">
+        <div class="nav-tab active" id="tab-plan" onclick="switchTab('plan')">Daily Plan</div>
+        <div class="nav-tab" id="tab-all" onclick="switchTab('all')">Word List</div>
+    </div>
+</div>
 
         <div class="plan-essentials">
             <div class="settings-bar">
